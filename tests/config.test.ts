@@ -6,9 +6,16 @@ vi.mock("../src/user-config.js", () => ({
   loadUserConfig: vi.fn(),
 }));
 
+// Mock git detection — returns undefined unless overridden per test
+vi.mock("../src/git.js", () => ({
+  detectRepoFromGit: vi.fn(),
+}));
+
 import { loadUserConfig } from "../src/user-config.js";
+import { detectRepoFromGit } from "../src/git.js";
 
 const mockedLoadUserConfig = vi.mocked(loadUserConfig);
+const mockedDetectRepo = vi.mocked(detectRepoFromGit);
 
 describe("loadConfig", () => {
   const originalEnv = { ...process.env };
@@ -24,6 +31,8 @@ describe("loadConfig", () => {
     delete process.env.GOGS_OUTPUT;
     // Default: no user config file present
     mockedLoadUserConfig.mockReturnValue({});
+    // Default: not in a git repo
+    mockedDetectRepo.mockReturnValue(undefined);
   });
 
   afterEach(() => {
@@ -139,20 +148,35 @@ describe("loadConfig", () => {
 });
 
 describe("resolveRepo", () => {
-  it("returns repo from params if provided", () => {
-    const config = { defaultRepo: "default/repo" } as any;
-    expect(resolveRepo(config, "param/repo")).toBe("param/repo");
+  it("returns repo from --repo flag (highest priority)", () => {
+    const config = { defaultRepo: "env/repo", baseUrl: "https://git.example.com/api/v1" } as any;
+    expect(resolveRepo(config, "flag/repo")).toBe("flag/repo");
   });
 
-  it("falls back to defaultRepo if params repo is undefined", () => {
-    const config = { defaultRepo: "default/repo" } as any;
-    expect(resolveRepo(config, undefined)).toBe("default/repo");
+  it("falls back to defaultRepo (GOGS_DEFAULT_REPO)", () => {
+    const config = { defaultRepo: "env/repo", baseUrl: "https://git.example.com/api/v1" } as any;
+    expect(resolveRepo(config, undefined)).toBe("env/repo");
   });
 
-  it("throws ConfigError if neither repo param nor defaultRepo is set", () => {
+  it("falls back to git remote detection when no flag or env var", () => {
+    mockedDetectRepo.mockReturnValue("git/repo");
+    const config = { baseUrl: "https://git.example.com/api/v1" } as any;
+    expect(resolveRepo(config, undefined)).toBe("git/repo");
+    // Should pass the configured baseUrl for host cross-check
+    expect(mockedDetectRepo).toHaveBeenCalledWith("https://git.example.com/api/v1");
+  });
+
+  it("--repo flag overrides both defaultRepo and git detection", () => {
+    mockedDetectRepo.mockReturnValue("git/repo");
+    const config = { defaultRepo: "env/repo", baseUrl: "https://git.example.com/api/v1" } as any;
+    expect(resolveRepo(config, "flag/repo")).toBe("flag/repo");
+  });
+
+  it("throws ConfigError when all sources are empty", () => {
+    mockedDetectRepo.mockReturnValue(undefined);
     const config = {} as any;
     expect(() => resolveRepo(config, undefined)).toThrow(
-      "--repo <owner/repo> is required."
+      "--repo <owner/repo> is required (or run inside a git clone with an origin remote)."
     );
   });
 });

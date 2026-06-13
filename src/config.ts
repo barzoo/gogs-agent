@@ -1,6 +1,7 @@
 import { ConfigError } from "./errors.js";
 import type { AppConfig } from "./types.js";
 import { loadUserConfig } from "./user-config.js";
+import { detectRepoFromGit } from "./git.js";
 
 /**
  * Load configuration with precedence:
@@ -44,9 +45,15 @@ export function resolveRepo(
   config: AppConfig,
   paramRepo?: string
 ): string {
-  const repo = paramRepo || config.defaultRepo;
-  if (!repo) {
-    throw new ConfigError("--repo <owner/repo> is required.");
-  }
-  return repo;
+  // 1. Explicit --repo flag
+  if (paramRepo) return paramRepo;
+  // 2. GOGS_DEFAULT_REPO env var
+  if (config.defaultRepo) return config.defaultRepo;
+  // 3. Auto-detect from local git remote
+  const detected = detectRepoFromGit(config.baseUrl);
+  if (detected) return detected;
+  // 4. Bail
+  throw new ConfigError(
+    "--repo <owner/repo> is required (or run inside a git clone with an origin remote)."
+  );
 }

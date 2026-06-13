@@ -137,6 +137,16 @@ export interface IssueCloseReopenParams {
   action: "close" | "reopen";
 }
 
+export interface LabelListParams {
+  repo: string;
+}
+
+export interface LabelCreateParams {
+  repo: string;
+  name: string;
+  color?: string;
+}
+
 export interface PrListParams {
   repo: string;
   state?: "open" | "closed" | "all";

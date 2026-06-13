@@ -4,7 +4,7 @@
 
 `gogs-agent` gives Claude Code agents (and humans) structured, type-safe access to Gogs — the self-hosted Git service. Create and manage issues, pull requests, comments, and labels through a uniform CLI that speaks JSON.
 
-> **Version:** 0.1.0 &emsp; **License:** MIT &emsp; **Runtime:** Node.js ≥ 18
+> **Version:** 0.1.0 &emsp; **License:** MIT &emsp; **Runtime:** Node.js ≥ 18 &emsp; [中文文档](README.zh-CN.md)
 
 ---
 
@@ -100,18 +100,59 @@ Use `--format markdown` for human-readable tables, or `--output path/to/file.jso
 
 ---
 
-## Using as a Claude Code Skill
+## Using in Your Project
 
-This project ships a ready-to-use Claude Code skill. Install the `.skill` file:
+### CLI only
 
 ```bash
-# The skill file is at the repo root:
-gogs-agent.skill
+# Install
+npm install -g gogs-agent
+
+# Configure — pick one
+echo 'GOGS_API_KEY=your_token' >> .env          # project .env file
+echo 'GOGS_DEFAULT_REPO=org/repo' >> .env       # optional, skips --repo everywhere
+# or: export GOGS_API_KEY=your_token            # shell env var
+
+# Use
+gogs issue list --state open                    # no --repo needed if GOGS_DEFAULT_REPO set
+gogs pr diff --number 42
 ```
 
-Or install via plugin registry (coming soon). When loaded, Claude Code agents can directly operate your Gogs repositories — creating issues, reviewing PRs, merging code, and managing labels — all through structured tool calls.
+If you work across multiple repositories, skip `GOGS_DEFAULT_REPO` and pass `--repo` explicitly:
+
+```bash
+gogs issue list --repo org/frontend --state open
+gogs pr list --repo org/backend --state open
+gogs pr list --repo org/docs --state open
+```
+
+### As a Claude Code Skill
+
+Drop `gogs-agent.skill` into your project. Claude Code auto-discovers it on next launch.
+
+Or reference it from your project's `CLAUDE.md`:
+
+```markdown
+> Gogs 操作使用 gogs-agent skill，skill 文件在 ./skills/gogs-agent.skill
+```
+
+Once loaded, Claude Code agents can directly operate your Gogs repositories — creating issues, reviewing PRs, merging code, and managing labels — all through structured tool calls.
 
 The skill's tool schemas are **auto-generated from CLI metadata** during `npm run build`, so they never drift from the actual CLI implementation.
+
+### Configuration Reference
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GOGS_API_KEY` | **Yes** | — | Gogs API token (Settings → Applications) |
+| `GOGS_BASE_URL` | No | `https://git.desiyi.com/api/v1` | Your Gogs API base URL |
+| `GOGS_DEFAULT_REPO` | No | — | Fallback repository as `owner/repo` |
+
+Load order: `CLI --flags` > `environment variables` > `.env file` > `built-in defaults`
+
+**Get a token:** Log into your Gogs instance → Settings → Applications → Generate new token.
+
+> Full details: [docs/configuration.md](docs/configuration.md)
 
 ---
 

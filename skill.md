@@ -43,9 +43,8 @@ List repository issues (issue resource)
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `state` (string, optional): Filter by state: open, closed, all
 - `labels` (string, optional): Filter by labels (comma-separated)
-- `limit` (integer, optional): Number of results per page
-- `page` (integer, optional): Page number
-
+- `limit` (string, optional): Number of results per page
+- `page` (string, optional): Page number
 ### gogs_issue_get
 
 Get a single issue (issue resource)
@@ -55,8 +54,7 @@ Get a single issue (issue resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (integer, required): Issue number
-
+- `number` (string, required): Issue number
 ### gogs_issue_create
 
 Create a new issue (issue resource)
@@ -70,8 +68,7 @@ Create a new issue (issue resource)
 - `body` (string, optional): Issue body/description
 - `labels` (string, optional): Comma-separated labels
 - `assignee` (string, optional): Assignee username
-- `milestone` (integer, optional): Milestone ID
-
+- `milestone` (string, optional): Milestone ID
 ### gogs_issue_close
 
 Close an issue (issue resource)
@@ -81,8 +78,7 @@ Close an issue (issue resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (integer, required): Issue number
-
+- `number` (string, required): Issue number
 ### gogs_issue_reopen
 
 Reopen a closed issue (issue resource)
@@ -92,8 +88,23 @@ Reopen a closed issue (issue resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (integer, required): Issue number
+- `number` (string, required): Issue number
+### gogs_issue_update
 
+Update an issue (issue resource)
+
+**Parameters:**
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
+- `number` (string, required): Issue number
+- `title` (string, optional): New title
+- `body` (string, optional): New body
+- `state` (string, optional): New state: open or closed
+- `assignee` (string, optional): Assignee username
+- `milestone` (string, optional): Milestone ID
+- `labels` (string, optional): Comma-separated label names
 ### gogs_pr_list
 
 List repository pull requests (pr resource)
@@ -104,9 +115,8 @@ List repository pull requests (pr resource)
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `state` (string, optional): Filter by state: open, closed, all
-- `limit` (integer, optional): Results per page
-- `page` (integer, optional): Page number
-
+- `limit` (string, optional): Results per page
+- `page` (string, optional): Page number
 ### gogs_pr_get
 
 Get a single pull request (pr resource)
@@ -116,8 +126,7 @@ Get a single pull request (pr resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (integer, required): PR number
-
+- `number` (string, required): PR number
 ### gogs_pr_create
 
 Create a new pull request (pr resource)
@@ -132,7 +141,6 @@ Create a new pull request (pr resource)
 - `base` (string, required): Target branch to merge into
 - `body` (string, optional): PR description
 - `assignee` (string, optional): Assignee username
-
 ### gogs_pr_merge
 
 Merge a pull request (pr resource)
@@ -142,9 +150,8 @@ Merge a pull request (pr resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (integer, required): PR number
+- `number` (string, required): PR number
 - `strategy` (string, optional): Merge strategy: merge, rebase, squash
-
 ### gogs_pr_diff
 
 Get pull request diff (pr resource)
@@ -154,8 +161,7 @@ Get pull request diff (pr resource)
 - `format` (string, optional): Output format: json, diff
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (integer, required): PR number
-
+- `number` (string, required): PR number
 ### gogs_repo_info
 
 Get repository information (repo resource)
@@ -165,7 +171,6 @@ Get repository information (repo resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-
 ### gogs_comment_list
 
 List comments on an issue or PR (comment resource)
@@ -176,8 +181,7 @@ List comments on an issue or PR (comment resource)
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `type` (string, required): Type: issue or pr
-- `number` (integer, required): Issue or PR number
-
+- `number` (string, required): Issue or PR number
 ### gogs_comment_create
 
 Add a comment to an issue or PR (comment resource)
@@ -188,9 +192,28 @@ Add a comment to an issue or PR (comment resource)
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `type` (string, required): Type: issue or pr
-- `number` (integer, required): Issue or PR number
+- `number` (string, required): Issue or PR number
 - `body` (string, required): Comment text
+### gogs_label_list
 
+List all labels for a repository (label resource)
+
+**Parameters:**
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
+### gogs_label_create
+
+Create a new label (label resource)
+
+**Parameters:**
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
+- `name` (string, required): Label name
+- `color` (string, optional): Hex color code (e.g. #ee0701)
 
 ## Tool Schema (JSON)
 
@@ -227,11 +250,11 @@ Add a comment to an issue or PR (comment resource)
           "description": "Filter by labels (comma-separated)"
         },
         "limit": {
-          "type": "integer",
+          "type": "string",
           "description": "Number of results per page"
         },
         "page": {
-          "type": "integer",
+          "type": "string",
           "description": "Page number"
         }
       },
@@ -261,7 +284,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "integer",
+          "type": "string",
           "description": "Issue number"
         }
       },
@@ -309,7 +332,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Assignee username"
         },
         "milestone": {
-          "type": "integer",
+          "type": "string",
           "description": "Milestone ID"
         }
       },
@@ -341,7 +364,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "integer",
+          "type": "string",
           "description": "Issue number"
         }
       },
@@ -373,8 +396,64 @@ Add a comment to an issue or PR (comment resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "integer",
+          "type": "string",
           "description": "Issue number"
+        }
+      },
+      "required": [
+        "number"
+      ]
+    }
+  },
+  {
+    "name": "gogs_issue_update",
+    "description": "Update an issue (issue resource)",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
+        },
+        "number": {
+          "type": "string",
+          "description": "Issue number"
+        },
+        "title": {
+          "type": "string",
+          "description": "New title"
+        },
+        "body": {
+          "type": "string",
+          "description": "New body"
+        },
+        "state": {
+          "type": "string",
+          "description": "New state: open or closed"
+        },
+        "assignee": {
+          "type": "string",
+          "description": "Assignee username"
+        },
+        "milestone": {
+          "type": "string",
+          "description": "Milestone ID"
+        },
+        "labels": {
+          "type": "string",
+          "description": "Comma-separated label names"
         }
       },
       "required": [
@@ -409,11 +488,11 @@ Add a comment to an issue or PR (comment resource)
           "description": "Filter by state: open, closed, all"
         },
         "limit": {
-          "type": "integer",
+          "type": "string",
           "description": "Results per page"
         },
         "page": {
-          "type": "integer",
+          "type": "string",
           "description": "Page number"
         }
       },
@@ -443,7 +522,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "integer",
+          "type": "string",
           "description": "PR number"
         }
       },
@@ -525,7 +604,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "integer",
+          "type": "string",
           "description": "PR number"
         },
         "strategy": {
@@ -561,7 +640,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "integer",
+          "type": "string",
           "description": "PR number"
         }
       },
@@ -623,7 +702,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Type: issue or pr"
         },
         "number": {
-          "type": "integer",
+          "type": "string",
           "description": "Issue or PR number"
         }
       },
@@ -660,7 +739,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Type: issue or pr"
         },
         "number": {
-          "type": "integer",
+          "type": "string",
           "description": "Issue or PR number"
         },
         "body": {
@@ -672,6 +751,68 @@ Add a comment to an issue or PR (comment resource)
         "type",
         "number",
         "body"
+      ]
+    }
+  },
+  {
+    "name": "gogs_label_list",
+    "description": "List all labels for a repository (label resource)",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
+        }
+      },
+      "required": []
+    }
+  },
+  {
+    "name": "gogs_label_create",
+    "description": "Create a new label (label resource)",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
+        },
+        "name": {
+          "type": "string",
+          "description": "Label name"
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex color code (e.g. #ee0701)"
+        }
+      },
+      "required": [
+        "name"
       ]
     }
   }

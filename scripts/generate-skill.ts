@@ -1,7 +1,7 @@
 /**
  * Auto-generates skill.md from CLI metadata.
  */
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import { writeFileSync } from "fs";
 
 const program = new Command();
@@ -20,6 +20,7 @@ issue.command("get").description("Get a single issue").requiredOption("--number 
 issue.command("create").description("Create a new issue").requiredOption("--title <title>", "Issue title").option("--body <body>", "Issue body/description").option("--labels <labels>", "Comma-separated labels").option("--assignee <user>", "Assignee username").option("--milestone <id>", "Milestone ID");
 issue.command("close").description("Close an issue").requiredOption("--number <n>", "Issue number");
 issue.command("reopen").description("Reopen a closed issue").requiredOption("--number <n>", "Issue number");
+issue.command("update").description("Update an issue").requiredOption("--number <n>", "Issue number").option("--title <title>", "New title").option("--body <body>", "New body").option("--state <state>", "New state: open or closed").option("--assignee <user>", "Assignee username").option("--milestone <id>", "Milestone ID").option("--labels <labels>", "Comma-separated label names");
 
 const pr = program.command("pr").description("Pull request operations");
 pr.command("list").description("List repository pull requests").option("--state <state>", "Filter by state: open, closed, all").option("--limit <n>", "Results per page").option("--page <n>", "Page number");
@@ -35,6 +36,10 @@ const comment = program.command("comment").description("Comment operations on is
 comment.command("list").description("List comments on an issue or PR").requiredOption("--type <t>", "Type: issue or pr").requiredOption("--number <n>", "Issue or PR number");
 comment.command("create").description("Add a comment to an issue or PR").requiredOption("--type <t>", "Type: issue or pr").requiredOption("--number <n>", "Issue or PR number").requiredOption("--body <body>", "Comment text");
 
+const label = program.command("label").description("Label operations");
+label.command("list").description("List all labels for a repository");
+label.command("create").description("Create a new label").requiredOption("--name <name>", "Label name").option("--color <hex>", "Hex color code (e.g. #ee0701)");
+
 // ── Generate tool definitions ──
 
 interface ToolDef {
@@ -47,17 +52,29 @@ interface ToolDef {
   };
 }
 
+/** Commander.js auto-registered options to exclude from tool schemas. */
+const INTERNAL_OPTIONS = new Set(["--version", "--help"]);
+
+/** Infer JSON Schema type from the Commander option's parser. */
+function inferType(opt: Option): "integer" | "string" {
+  // Commander.js passes parseInt to the parser for numeric --flags like --number <n>, --limit <n>
+  if (opt.parseArg === parseInt || opt.parseArg === Number) return "integer";
+  return "string";
+}
+
 function buildTools(): ToolDef[] {
   const tools: ToolDef[] = [];
 
-  // Global options defined on the root program (skip --version)
-  const globalOptions = program.options
-    .filter((opt) => opt.long !== "--version")
-    .map((opt) => ({
-      name: opt.long!.replace(/^--/, ""),
-      description: opt.description,
-      required: opt.required,
-    }));
+  // Build global properties (repo, format, output, verbose) once outside the loop
+  const globalProperties: Record<string, { type: string; description: string }> = {
+    repo: { type: "string", description: "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)" },
+  };
+
+  for (const opt of program.options) {
+    if (!opt.long || INTERNAL_OPTIONS.has(opt.long)) continue;
+    const name = opt.long.replace(/^--/, "");
+    globalProperties[name] = { type: inferType(opt), description: opt.description };
+  }
 
   for (const resourceCmd of program.commands) {
     const resource = resourceCmd.name();
@@ -65,44 +82,18 @@ function buildTools(): ToolDef[] {
       const action = actionCmd.name();
       const toolName = `gogs_${resource}_${action}`;
 
-      const properties: Record<string, { type: string; description: string }> = {};
+      const properties: Record<string, { type: string; description: string }> = { ...globalProperties };
       const required: string[] = [];
-
-      // Global --repo option
-      properties["repo"] = {
-        type: "string",
-        description: "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)",
-      };
-
-      // Add global options (--format, --output, --verbose) — all optional
-      for (const opt of globalOptions) {
-        const type = opt.name.includes("number") || opt.name.includes("limit") || opt.name.includes("page") || opt.name.includes("milestone")
-          ? "integer"
-          : "string";
-
-        properties[opt.name] = {
-          type,
-          description: opt.description,
-        };
-
-        // Global options are never required
-      }
 
       for (const opt of actionCmd.options) {
         const name = opt.long!.replace(/^--/, "");
-        const type = name.includes("number") || name.includes("limit") || name.includes("page") || name.includes("milestone")
-          ? "integer"
-          : "string";
 
         properties[name] = {
-          type,
+          type: inferType(opt),
           description: opt.description,
         };
 
-        // Check if this is a requiredOption (mandatory=true) vs regular option
-        // In Commander.js, both .option() and .requiredOption() have required=true,
-        // but only requiredOption has mandatory=true
-        if ((opt as any).mandatory) {
+        if (opt.mandatory) {
           required.push(name);
         }
       }
@@ -119,12 +110,26 @@ function buildTools(): ToolDef[] {
     }
   }
 
+  if (tools.length === 0) {
+    throw new Error("No tools generated — commander tree may be misconfigured");
+  }
+
   return tools;
 }
 
 const tools = buildTools();
 
-const skillMarkdown = `---
+function renderToolMarkdown(t: ToolDef): string {
+  const params = Object.entries(t.inputSchema.properties).map(([name, prop]) => {
+    const req = t.inputSchema.required.includes(name) ? ", required" : ", optional";
+    return `- \`${name}\` (${prop.type}${req}): ${prop.description}`;
+  }).join("\n");
+
+  return `### ${t.name}\n\n${t.description}\n\n**Parameters:**\n${params}`;
+}
+
+function renderFrontMatter(): string {
+  return `---
 name: gogs-agent
 description: |
   Operate Gogs (self-hosted Git service) repositories directly from Claude Code.
@@ -133,48 +138,21 @@ description: |
   merging, and diffing. Trigger on any mention of Gogs, self-hosted Git, issue
   management, PR workflows, code review, or repository operations — even if the user
   doesn't explicitly ask for a "skill".
----
+---`;
+}
 
-# Gogs Agent Skill
+function renderToolSection(): string {
+  const toolList = tools.map(renderToolMarkdown).join("\n");
+  return `## Tools\n\n${toolList}`;
+}
 
-Operate Gogs repositories directly from Claude Code — create and manage issues, pull requests, comments, and labels.
+function renderSchemaSection(): string {
+  const json = JSON.stringify(tools, null, 2);
+  return `## Tool Schema (JSON)\n\n\`\`\`json\n${json}\n\`\`\``;
+}
 
-## Prerequisites
-
-- Node.js 18+ installed
-- \`GOGS_API_KEY\` environment variable set (or in .env file)
-- Optional: \`GOGS_BASE_URL\` (defaults to https://git.desiyi.com/api/v1)
-- Optional: \`GOGS_DEFAULT_REPO\` as fallback for --repo
-
-## Installation
-
-\`\`\`bash
-npm install -g gogs-agent
-\`\`\`
-
-## Usage
-
-This skill provides the following tools. Call them with structured arguments to interact with Gogs.
-
-## Tools
-
-${tools.map(t => `### ${t.name}
-
-${t.description}
-
-**Parameters:**
-${Object.entries(t.inputSchema.properties).map(([name, prop]) =>
-  `- \`${name}\` (${prop.type}${t.inputSchema.required.includes(name) ? ", required" : ", optional"}): ${prop.description}`
-).join("\n")}
-`).join("\n")}
-
-## Tool Schema (JSON)
-
-\`\`\`json
-${JSON.stringify(tools, null, 2)}
-\`\`\`
-
-## Output Format
+function renderReferenceSections(): string {
+  return `## Output Format
 
 All tools return structured JSON to stdout:
 
@@ -222,8 +200,40 @@ gogs pr merge --repo owner/repo --number 42 --strategy squash
 **Add a comment:**
 \`\`\`bash
 gogs comment create --repo owner/repo --type issue --number 5 --body "LGTM!"
-\`\`\`
-`;
+\`\`\``;
+}
+
+const skillMarkdown = [
+  renderFrontMatter(),
+  "",
+  "# Gogs Agent Skill",
+  "",
+  "Operate Gogs repositories directly from Claude Code — create and manage issues, pull requests, comments, and labels.",
+  "",
+  "## Prerequisites",
+  "",
+  "- Node.js 18+ installed",
+  "- `GOGS_API_KEY` environment variable set (or in .env file)",
+  "- Optional: `GOGS_BASE_URL` (defaults to https://git.desiyi.com/api/v1)",
+  "- Optional: `GOGS_DEFAULT_REPO` as fallback for --repo",
+  "",
+  "## Installation",
+  "",
+  "```bash",
+  "npm install -g gogs-agent",
+  "```",
+  "",
+  "## Usage",
+  "",
+  "This skill provides the following tools. Call them with structured arguments to interact with Gogs.",
+  "",
+  renderToolSection(),
+  "",
+  renderSchemaSection(),
+  "",
+  renderReferenceSections(),
+  "",
+].join("\n");
 
 writeFileSync("skill.md", skillMarkdown);
 console.log("Generated skill.md with", tools.length, "tools");

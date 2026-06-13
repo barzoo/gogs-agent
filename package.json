@@ -1,6 +1,6 @@
 {
   "name": "gogs-agent",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Claude Code Skill + CLI for operating Gogs repositories",
   "type": "module",
   "bin": {

@@ -1,11 +1,13 @@
 import type { GogsClient } from "../client.js";
 import { resolveLabels } from "../labels.js";
+import { ValidationError } from "../errors.js";
 import type {
   Issue,
   IssueListParams,
   IssueGetParams,
   IssueCreateParams,
   IssueCloseReopenParams,
+  IssueUpdateParams,
 } from "../types.js";
 
 export async function issueList(
@@ -74,6 +76,37 @@ export async function issueCloseReopen(
     "PATCH",
     `/repos/${params.repo}/issues/${params.number}`,
     { body: { state: params.action === "close" ? "closed" : "open" } }
+  );
+  return res.data;
+}
+
+export async function issueUpdate(
+  client: GogsClient,
+  params: IssueUpdateParams
+): Promise<Issue> {
+  const body: Record<string, unknown> = {};
+
+  if (params.title !== undefined) body.title = params.title;
+  if (params.body !== undefined) body.body = params.body;
+  if (params.state !== undefined) body.state = params.state;
+  if (params.assignee !== undefined) body.assignee = params.assignee;
+  if (params.milestone !== undefined) body.milestone = params.milestone;
+
+  if (params.labels) {
+    const names = params.labels.split(",").map((l) => l.trim()).filter(Boolean);
+    if (names.length) {
+      body.labels = await resolveLabels(client, params.repo, names);
+    }
+  }
+
+  if (Object.keys(body).length === 0) {
+    throw new ValidationError("At least one field to update is required");
+  }
+
+  const res = await client.request<Issue>(
+    "PATCH",
+    `/repos/${params.repo}/issues/${params.number}`,
+    { body }
   );
   return res.data;
 }

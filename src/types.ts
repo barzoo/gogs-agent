@@ -137,6 +137,17 @@ export interface IssueCloseReopenParams {
   action: "close" | "reopen";
 }
 
+export interface IssueUpdateParams {
+  repo: string;
+  number: number;
+  title?: string;
+  body?: string;
+  state?: "open" | "closed";
+  assignee?: string;
+  milestone?: number;
+  labels?: string;
+}
+
 export interface LabelListParams {
   repo: string;
 }

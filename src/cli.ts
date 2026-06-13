@@ -23,7 +23,7 @@ async function printResult(result: unknown, config: AppConfig): Promise<void> {
 program
   .name("gogs")
   .description("CLI tool for operating Gogs repositories")
-  .version("0.1.0")
+  .version("0.2.0")
   .option("--repo <owner/repo>", "Target repository (or set GOGS_DEFAULT_REPO)")
   .option("--format <fmt>", "Output format: json, markdown, text", "json")
   .option("--output <path>", "Write output to file instead of stdout")

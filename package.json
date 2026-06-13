@@ -7,11 +7,12 @@
     "gogs": "./dist/cli.js"
   },
   "scripts": {
-    "build": "tsc && npm run generate-skill",
+    "build": "tsc && npm run generate-skill && tsx scripts/install-skill.ts",
     "generate-skill": "tsx scripts/generate-skill.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "start": "node dist/cli.js"
+    "start": "node dist/cli.js",
+    "postinstall": "tsx scripts/install-skill.ts"
   },
   "dependencies": {
     "commander": "^12.1.0",

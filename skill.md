@@ -1,6 +1,30 @@
+---
+name: gogs-agent
+description: |
+  Operate Gogs (self-hosted Git service) repositories directly from Claude Code.
+  Use this skill whenever the user needs to interact with Gogs issues, pull requests,
+  comments, or repository metadata. Covers listing, creating, updating, closing,
+  merging, and diffing. Trigger on any mention of Gogs, self-hosted Git, issue
+  management, PR workflows, code review, or repository operations — even if the user
+  doesn't explicitly ask for a "skill".
+---
+
 # Gogs Agent Skill
 
-Operate Gogs repositories directly from Claude Code — create and manage issues, pull requests, and comments.
+Operate Gogs repositories directly from Claude Code — create and manage issues, pull requests, comments, and labels.
+
+## Prerequisites
+
+- Node.js 18+ installed
+- `GOGS_API_KEY` environment variable set (or in .env file)
+- Optional: `GOGS_BASE_URL` (defaults to https://git.desiyi.com/api/v1)
+- Optional: `GOGS_DEFAULT_REPO` as fallback for --repo
+
+## Installation
+
+```bash
+npm install -g gogs-agent
+```
 
 ## Usage
 
@@ -14,14 +38,13 @@ List repository issues (issue resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `state` (string, required): Filter by state: open, closed, all
-- `labels` (string, required): Filter by labels (comma-separated)
-- `limit` (integer, required): Number of results per page
-- `page` (integer, required): Page number
+- `state` (string, optional): Filter by state: open, closed, all
+- `labels` (string, optional): Filter by labels (comma-separated)
+- `limit` (integer, optional): Number of results per page
+- `page` (integer, optional): Page number
 
 ### gogs_issue_get
 
@@ -29,7 +52,6 @@ Get a single issue (issue resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
@@ -41,15 +63,14 @@ Create a new issue (issue resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `title` (string, required): Issue title
-- `body` (string, required): Issue body/description
-- `labels` (string, required): Comma-separated labels
-- `assignee` (string, required): Assignee username
-- `milestone` (integer, required): Milestone ID
+- `body` (string, optional): Issue body/description
+- `labels` (string, optional): Comma-separated labels
+- `assignee` (string, optional): Assignee username
+- `milestone` (integer, optional): Milestone ID
 
 ### gogs_issue_close
 
@@ -57,7 +78,6 @@ Close an issue (issue resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
@@ -69,7 +89,6 @@ Reopen a closed issue (issue resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
@@ -81,13 +100,12 @@ List repository pull requests (pr resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `state` (string, required): Filter by state: open, closed, all
-- `limit` (integer, required): Results per page
-- `page` (integer, required): Page number
+- `state` (string, optional): Filter by state: open, closed, all
+- `limit` (integer, optional): Results per page
+- `page` (integer, optional): Page number
 
 ### gogs_pr_get
 
@@ -95,7 +113,6 @@ Get a single pull request (pr resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
@@ -107,15 +124,14 @@ Create a new pull request (pr resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `title` (string, required): PR title
 - `head` (string, required): Source branch with changes
 - `base` (string, required): Target branch to merge into
-- `body` (string, required): PR description
-- `assignee` (string, required): Assignee username
+- `body` (string, optional): PR description
+- `assignee` (string, optional): Assignee username
 
 ### gogs_pr_merge
 
@@ -123,12 +139,11 @@ Merge a pull request (pr resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `number` (integer, required): PR number
-- `strategy` (string, required): Merge strategy: merge, rebase, squash
+- `strategy` (string, optional): Merge strategy: merge, rebase, squash
 
 ### gogs_pr_diff
 
@@ -136,8 +151,7 @@ Get pull request diff (pr resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
-- `format` (string, required): Output format: json, diff
+- `format` (string, optional): Output format: json, diff
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `number` (integer, required): PR number
@@ -148,7 +162,6 @@ Get repository information (repo resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
@@ -159,7 +172,6 @@ List comments on an issue or PR (comment resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
@@ -172,7 +184,6 @@ Add a comment to an issue or PR (comment resource)
 
 **Parameters:**
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
-- `version` (string, optional): output the version number
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
@@ -194,10 +205,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -228,12 +235,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Page number"
         }
       },
-      "required": [
-        "state",
-        "labels",
-        "limit",
-        "page"
-      ]
+      "required": []
     }
   },
   {
@@ -245,10 +247,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -281,10 +279,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -320,11 +314,7 @@ Add a comment to an issue or PR (comment resource)
         }
       },
       "required": [
-        "title",
-        "body",
-        "labels",
-        "assignee",
-        "milestone"
+        "title"
       ]
     }
   },
@@ -337,10 +327,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -374,10 +360,6 @@ Add a comment to an issue or PR (comment resource)
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
         },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
-        },
         "format": {
           "type": "string",
           "description": "Output format: json, markdown, text"
@@ -410,10 +392,6 @@ Add a comment to an issue or PR (comment resource)
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
         },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
-        },
         "format": {
           "type": "string",
           "description": "Output format: json, markdown, text"
@@ -439,11 +417,7 @@ Add a comment to an issue or PR (comment resource)
           "description": "Page number"
         }
       },
-      "required": [
-        "state",
-        "limit",
-        "page"
-      ]
+      "required": []
     }
   },
   {
@@ -455,10 +429,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -491,10 +461,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -532,9 +498,7 @@ Add a comment to an issue or PR (comment resource)
       "required": [
         "title",
         "head",
-        "base",
-        "body",
-        "assignee"
+        "base"
       ]
     }
   },
@@ -547,10 +511,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -574,8 +534,7 @@ Add a comment to an issue or PR (comment resource)
         }
       },
       "required": [
-        "number",
-        "strategy"
+        "number"
       ]
     }
   },
@@ -588,10 +547,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -611,8 +566,7 @@ Add a comment to an issue or PR (comment resource)
         }
       },
       "required": [
-        "number",
-        "format"
+        "number"
       ]
     }
   },
@@ -625,10 +579,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -655,10 +605,6 @@ Add a comment to an issue or PR (comment resource)
         "repo": {
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
-        },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
         },
         "format": {
           "type": "string",
@@ -697,10 +643,6 @@ Add a comment to an issue or PR (comment resource)
           "type": "string",
           "description": "Target repository (or set GOGS_DEFAULT_REPO)"
         },
-        "version": {
-          "type": "string",
-          "description": "output the version number"
-        },
         "format": {
           "type": "string",
           "description": "Output format: json, markdown, text"
@@ -734,4 +676,54 @@ Add a comment to an issue or PR (comment resource)
     }
   }
 ]
+```
+
+## Output Format
+
+All tools return structured JSON to stdout:
+
+**Success:**
+```json
+{ "ok": true, "data": { ... } }
+```
+
+**Error:**
+```json
+{ "ok": false, "error": "Human-readable message", "code": "API_ERROR", "status": 404 }
+```
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Configuration or validation error |
+| 2 | Gogs API error (non-2xx response) |
+| 3 | Network error (timeout, DNS, connection refused) |
+
+## Examples
+
+**List open issues:**
+```bash
+gogs issue list --repo owner/repo --state open
+```
+
+**Create an issue:**
+```bash
+gogs issue create --repo owner/repo --title "Bug: crash on startup" --body "Steps to reproduce..."
+```
+
+**Get PR diff:**
+```bash
+gogs pr diff --repo owner/repo --number 42
+```
+
+**Merge a PR:**
+```bash
+gogs pr merge --repo owner/repo --number 42 --strategy squash
+```
+
+**Add a comment:**
+```bash
+gogs comment create --repo owner/repo --type issue --number 5 --body "LGTM!"
 ```

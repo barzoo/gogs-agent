@@ -50,12 +50,14 @@ interface ToolDef {
 function buildTools(): ToolDef[] {
   const tools: ToolDef[] = [];
 
-  // Global options defined on the root program
-  const globalOptions = program.options.map((opt) => ({
-    name: opt.long!.replace(/^--/, ""),
-    description: opt.description,
-    required: opt.required,
-  }));
+  // Global options defined on the root program (skip --version)
+  const globalOptions = program.options
+    .filter((opt) => opt.long !== "--version")
+    .map((opt) => ({
+      name: opt.long!.replace(/^--/, ""),
+      description: opt.description,
+      required: opt.required,
+    }));
 
   for (const resourceCmd of program.commands) {
     const resource = resourceCmd.name();
@@ -97,7 +99,10 @@ function buildTools(): ToolDef[] {
           description: opt.description,
         };
 
-        if (opt.required) {
+        // Check if this is a requiredOption (mandatory=true) vs regular option
+        // In Commander.js, both .option() and .requiredOption() have required=true,
+        // but only requiredOption has mandatory=true
+        if ((opt as any).mandatory) {
           required.push(name);
         }
       }
@@ -119,9 +124,33 @@ function buildTools(): ToolDef[] {
 
 const tools = buildTools();
 
-const skillMarkdown = `# Gogs Agent Skill
+const skillMarkdown = `---
+name: gogs-agent
+description: |
+  Operate Gogs (self-hosted Git service) repositories directly from Claude Code.
+  Use this skill whenever the user needs to interact with Gogs issues, pull requests,
+  comments, or repository metadata. Covers listing, creating, updating, closing,
+  merging, and diffing. Trigger on any mention of Gogs, self-hosted Git, issue
+  management, PR workflows, code review, or repository operations — even if the user
+  doesn't explicitly ask for a "skill".
+---
 
-Operate Gogs repositories directly from Claude Code — create and manage issues, pull requests, and comments.
+# Gogs Agent Skill
+
+Operate Gogs repositories directly from Claude Code — create and manage issues, pull requests, comments, and labels.
+
+## Prerequisites
+
+- Node.js 18+ installed
+- \`GOGS_API_KEY\` environment variable set (or in .env file)
+- Optional: \`GOGS_BASE_URL\` (defaults to https://git.desiyi.com/api/v1)
+- Optional: \`GOGS_DEFAULT_REPO\` as fallback for --repo
+
+## Installation
+
+\`\`\`bash
+npm install -g gogs-agent
+\`\`\`
 
 ## Usage
 
@@ -143,6 +172,56 @@ ${Object.entries(t.inputSchema.properties).map(([name, prop]) =>
 
 \`\`\`json
 ${JSON.stringify(tools, null, 2)}
+\`\`\`
+
+## Output Format
+
+All tools return structured JSON to stdout:
+
+**Success:**
+\`\`\`json
+{ "ok": true, "data": { ... } }
+\`\`\`
+
+**Error:**
+\`\`\`json
+{ "ok": false, "error": "Human-readable message", "code": "API_ERROR", "status": 404 }
+\`\`\`
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Configuration or validation error |
+| 2 | Gogs API error (non-2xx response) |
+| 3 | Network error (timeout, DNS, connection refused) |
+
+## Examples
+
+**List open issues:**
+\`\`\`bash
+gogs issue list --repo owner/repo --state open
+\`\`\`
+
+**Create an issue:**
+\`\`\`bash
+gogs issue create --repo owner/repo --title "Bug: crash on startup" --body "Steps to reproduce..."
+\`\`\`
+
+**Get PR diff:**
+\`\`\`bash
+gogs pr diff --repo owner/repo --number 42
+\`\`\`
+
+**Merge a PR:**
+\`\`\`bash
+gogs pr merge --repo owner/repo --number 42 --strategy squash
+\`\`\`
+
+**Add a comment:**
+\`\`\`bash
+gogs comment create --repo owner/repo --type issue --number 5 --body "LGTM!"
 \`\`\`
 `;
 

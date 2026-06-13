@@ -43,8 +43,8 @@ List repository issues (issue resource)
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `state` (string, optional): Filter by state: open, closed, all
 - `labels` (string, optional): Filter by labels (comma-separated)
-- `limit` (string, optional): Number of results per page
-- `page` (string, optional): Page number
+- `limit` (integer, optional): Number of results per page
+- `page` (integer, optional): Page number
 ### gogs_issue_get
 
 Get a single issue (issue resource)
@@ -54,7 +54,7 @@ Get a single issue (issue resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (string, required): Issue number
+- `number` (integer, required): Issue number
 ### gogs_issue_create
 
 Create a new issue (issue resource)
@@ -68,7 +68,7 @@ Create a new issue (issue resource)
 - `body` (string, optional): Issue body/description
 - `labels` (string, optional): Comma-separated labels
 - `assignee` (string, optional): Assignee username
-- `milestone` (string, optional): Milestone ID
+- `milestone` (integer, optional): Milestone ID
 ### gogs_issue_close
 
 Close an issue (issue resource)
@@ -78,7 +78,7 @@ Close an issue (issue resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (string, required): Issue number
+- `number` (integer, required): Issue number
 ### gogs_issue_reopen
 
 Reopen a closed issue (issue resource)
@@ -88,7 +88,7 @@ Reopen a closed issue (issue resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (string, required): Issue number
+- `number` (integer, required): Issue number
 ### gogs_issue_update
 
 Update an issue (issue resource)
@@ -98,12 +98,12 @@ Update an issue (issue resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (string, required): Issue number
+- `number` (integer, required): Issue number
 - `title` (string, optional): New title
 - `body` (string, optional): New body
 - `state` (string, optional): New state: open or closed
 - `assignee` (string, optional): Assignee username
-- `milestone` (string, optional): Milestone ID
+- `milestone` (integer, optional): Milestone ID
 - `labels` (string, optional): Comma-separated label names
 ### gogs_pr_list
 
@@ -115,8 +115,8 @@ List repository pull requests (pr resource)
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `state` (string, optional): Filter by state: open, closed, all
-- `limit` (string, optional): Results per page
-- `page` (string, optional): Page number
+- `limit` (integer, optional): Results per page
+- `page` (integer, optional): Page number
 ### gogs_pr_get
 
 Get a single pull request (pr resource)
@@ -126,7 +126,7 @@ Get a single pull request (pr resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (string, required): PR number
+- `number` (integer, required): PR number
 ### gogs_pr_create
 
 Create a new pull request (pr resource)
@@ -150,7 +150,7 @@ Merge a pull request (pr resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (string, required): PR number
+- `number` (integer, required): PR number
 - `strategy` (string, optional): Merge strategy: merge, rebase, squash
 ### gogs_pr_diff
 
@@ -161,7 +161,7 @@ Get pull request diff (pr resource)
 - `format` (string, optional): Output format: json, diff
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
-- `number` (string, required): PR number
+- `number` (integer, required): PR number
 ### gogs_repo_info
 
 Get repository information (repo resource)
@@ -181,7 +181,7 @@ List comments on an issue or PR (comment resource)
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `type` (string, required): Type: issue or pr
-- `number` (string, required): Issue or PR number
+- `number` (integer, required): Issue or PR number
 ### gogs_comment_create
 
 Add a comment to an issue or PR (comment resource)
@@ -192,7 +192,7 @@ Add a comment to an issue or PR (comment resource)
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (string, optional): Enable verbose logging to stderr
 - `type` (string, required): Type: issue or pr
-- `number` (string, required): Issue or PR number
+- `number` (integer, required): Issue or PR number
 - `body` (string, required): Comment text
 ### gogs_label_list
 
@@ -250,11 +250,11 @@ Create a new label (label resource)
           "description": "Filter by labels (comma-separated)"
         },
         "limit": {
-          "type": "string",
+          "type": "integer",
           "description": "Number of results per page"
         },
         "page": {
-          "type": "string",
+          "type": "integer",
           "description": "Page number"
         }
       },
@@ -284,7 +284,7 @@ Create a new label (label resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "string",
+          "type": "integer",
           "description": "Issue number"
         }
       },
@@ -332,7 +332,7 @@ Create a new label (label resource)
           "description": "Assignee username"
         },
         "milestone": {
-          "type": "string",
+          "type": "integer",
           "description": "Milestone ID"
         }
       },
@@ -364,7 +364,7 @@ Create a new label (label resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "string",
+          "type": "integer",
           "description": "Issue number"
         }
       },
@@ -396,7 +396,7 @@ Create a new label (label resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "string",
+          "type": "integer",
           "description": "Issue number"
         }
       },
@@ -428,7 +428,7 @@ Create a new label (label resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "string",
+          "type": "integer",
           "description": "Issue number"
         },
         "title": {
@@ -448,7 +448,7 @@ Create a new label (label resource)
           "description": "Assignee username"
         },
         "milestone": {
-          "type": "string",
+          "type": "integer",
           "description": "Milestone ID"
         },
         "labels": {
@@ -488,11 +488,11 @@ Create a new label (label resource)
           "description": "Filter by state: open, closed, all"
         },
         "limit": {
-          "type": "string",
+          "type": "integer",
           "description": "Results per page"
         },
         "page": {
-          "type": "string",
+          "type": "integer",
           "description": "Page number"
         }
       },
@@ -522,7 +522,7 @@ Create a new label (label resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "string",
+          "type": "integer",
           "description": "PR number"
         }
       },
@@ -604,7 +604,7 @@ Create a new label (label resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "string",
+          "type": "integer",
           "description": "PR number"
         },
         "strategy": {
@@ -640,7 +640,7 @@ Create a new label (label resource)
           "description": "Enable verbose logging to stderr"
         },
         "number": {
-          "type": "string",
+          "type": "integer",
           "description": "PR number"
         }
       },
@@ -702,7 +702,7 @@ Create a new label (label resource)
           "description": "Type: issue or pr"
         },
         "number": {
-          "type": "string",
+          "type": "integer",
           "description": "Issue or PR number"
         }
       },
@@ -739,7 +739,7 @@ Create a new label (label resource)
           "description": "Type: issue or pr"
         },
         "number": {
-          "type": "string",
+          "type": "integer",
           "description": "Issue or PR number"
         },
         "body": {

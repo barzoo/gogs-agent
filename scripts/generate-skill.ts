@@ -55,10 +55,16 @@ interface ToolDef {
 /** Commander.js auto-registered options to exclude from tool schemas. */
 const INTERNAL_OPTIONS = new Set(["--version", "--help"]);
 
-/** Infer JSON Schema type from the Commander option's parser. */
+/** Numeric option names the generator mirrors from the real CLI. */
+const NUMERIC_OPTION_NAMES = new Set(["number", "limit", "page", "milestone"]);
+
+/** Infer JSON Schema type. Uses opt.parseArg when available, falls back to name heuristic. */
 function inferType(opt: Option): "integer" | "string" {
-  // Commander.js passes parseInt to the parser for numeric --flags like --number <n>, --limit <n>
   if (opt.parseArg === parseInt || opt.parseArg === Number) return "integer";
+  // Fallback: generator's mirror tree doesn't attach parseInt to .option() —
+  // detect numeric params by convention (matches src/cli.ts naming).
+  const name = opt.long?.replace(/^--/, "") ?? "";
+  if (NUMERIC_OPTION_NAMES.has(name)) return "integer";
   return "string";
 }
 
@@ -86,7 +92,8 @@ function buildTools(): ToolDef[] {
       const required: string[] = [];
 
       for (const opt of actionCmd.options) {
-        const name = opt.long!.replace(/^--/, "");
+        if (!opt.long) continue;
+        const name = opt.long.replace(/^--/, "");
 
         properties[name] = {
           type: inferType(opt),

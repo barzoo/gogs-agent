@@ -6,7 +6,7 @@ import { createGogsClient } from "./client.js";
 import { formatOutput } from "./formatters.js";
 import { inferFormatFromPath, writeOutput } from "./output.js";
 import type { AppConfig } from "./types.js";
-import { repoInfo } from "./commands/repo.js";
+import { repoInfo, repoCreate } from "./commands/repo.js";
 import { issueList, issueGet, issueCreate, issueCloseReopen, issueUpdate } from "./commands/issue.js";
 import { prList, prGet, prCreate, prMerge, prDiff } from "./commands/pr.js";
 import { commentList, commentCreate } from "./commands/comment.js";
@@ -245,6 +245,23 @@ repoCmd
     await run(async (config, client) => {
       const repo = resolveRepo(config, config.repo);
       const result = await repoInfo(client, { repo });
+      await printResult(result, config);
+    });
+  });
+
+repoCmd
+  .command("create")
+  .description("Create a new repository")
+  .requiredOption("--name <name>", "Repository name")
+  .option("--description <desc>", "Repository description")
+  .option("--private", "Make repository private", false)
+  .action(async (options) => {
+    await run(async (config, client) => {
+      const result = await repoCreate(client, {
+        name: options.name,
+        description: options.description,
+        private: options.private,
+      });
       await printResult(result, config);
     });
   });

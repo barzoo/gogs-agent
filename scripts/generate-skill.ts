@@ -31,6 +31,7 @@ pr.command("diff").description("Get pull request diff").requiredOption("--number
 
 const repo = program.command("repo").description("Repository operations");
 repo.command("info").description("Get repository information");
+repo.command("create").description("Create a new repository").requiredOption("--name <name>", "Repository name").option("--description <desc>", "Repository description").option("--private", "Make repository private");
 
 const comment = program.command("comment").description("Comment operations on issues and pull requests");
 comment.command("list").description("List comments on an issue or PR").requiredOption("--type <t>", "Type: issue or pr").requiredOption("--number <n>", "Issue or PR number");
@@ -59,8 +60,11 @@ const INTERNAL_OPTIONS = new Set(["--version", "--help"]);
 const NUMERIC_OPTION_NAMES = new Set(["number", "limit", "page", "milestone"]);
 
 /** Infer JSON Schema type. Uses opt.parseArg when available, falls back to name heuristic. */
-function inferType(opt: Option): "integer" | "string" {
+function inferType(opt: Option): "integer" | "string" | "boolean" {
   if (opt.parseArg === parseInt || opt.parseArg === Number) return "integer";
+  // Commander boolean flags: neither required nor optional value argument
+  // (e.g. --private, --verbose, --no-init)
+  if (!opt.required && !opt.optional) return "boolean";
   // Fallback: generator's mirror tree doesn't attach parseInt to .option() —
   // detect numeric params by convention (matches src/cli.ts naming).
   const name = opt.long?.replace(/^--/, "") ?? "";
@@ -184,6 +188,11 @@ All tools return structured JSON to stdout:
 
 ## Examples
 
+**Create a repo:**
+\`\`\`bash
+gogs repo create --name my-project --description "A new project" --private
+\`\`\`
+
 **List open issues:**
 \`\`\`bash
 gogs issue list --repo owner/repo --state open
@@ -215,14 +224,14 @@ const skillMarkdown = [
   "",
   "# Gogs Agent Skill",
   "",
-  "Operate Gogs repositories directly from Claude Code — create and manage issues, pull requests, comments, and labels.",
+  "Operate Gogs repositories directly from Claude Code — create and manage repos, issues, pull requests, comments, and labels.",
   "",
   "## Prerequisites",
   "",
   "- Node.js 18+ installed",
-  "- `GOGS_API_KEY` environment variable set (or in .env file)",
+  "- `GOGS_API_KEY` set via `~/.gogs/config.json`, env var, or project `.env`",
   "- Optional: `GOGS_BASE_URL` (defaults to https://git.desiyi.com/api/v1)",
-  "- Optional: `GOGS_DEFAULT_REPO` as fallback for --repo",
+  "- Optional: `GOGS_DEFAULT_REPO` — set in project `.env` as fallback for `--repo`",
   "",
   "## Installation",
   "",

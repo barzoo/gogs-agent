@@ -1,20 +1,33 @@
 import { ConfigError } from "./errors.js";
 import type { AppConfig } from "./types.js";
+import { loadUserConfig } from "./user-config.js";
 
+/**
+ * Load configuration with precedence:
+ *   1. CLI flags (passed via cliOpts)
+ *   2. Environment variables / project .env (loaded by dotenv)
+ *   3. User ~/.gogs/config.json (machine-wide, set once)
+ *   4. Built-in defaults
+ */
 export function loadConfig(cliOpts: {
   repo?: string;
   format?: "json" | "markdown" | "text";
   output?: string;
 }): AppConfig {
-  const apiKey = process.env.GOGS_API_KEY;
+  const user = loadUserConfig();
+
+  const apiKey = process.env.GOGS_API_KEY || user.apiKey;
   if (!apiKey) {
     throw new ConfigError(
-      "GOGS_API_KEY is required. Set it in .env or as environment variable."
+      "GOGS_API_KEY is required. Set it via ~/.gogs/config.json, project .env, or environment variable."
     );
   }
 
   return {
-    baseUrl: process.env.GOGS_BASE_URL || "https://git.desiyi.com/api/v1",
+    baseUrl:
+      process.env.GOGS_BASE_URL ||
+      user.baseUrl ||
+      "https://git.desiyi.com/api/v1",
     apiKey,
     defaultRepo: process.env.GOGS_DEFAULT_REPO || undefined,
     verbose: process.env.GOGS_VERBOSE === "true",

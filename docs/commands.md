@@ -325,6 +325,26 @@ No additional flags.
 gogs repo info --repo xing/gogs-agent
 ```
 
+### `gogs repo create`
+
+Create a new repository under your user account. The repo is initialized with a README.
+
+```bash
+gogs repo create --name <name> [--description "..."] [--private]
+```
+
+| Flag | Type | Required | Description |
+|------|------|----------|-------------|
+| `--name` | string | **Yes** | Repository name (created under your user) |
+| `--description` | string | No | Repository description |
+| `--private` | flag | No | Make the repository private (default: public) |
+
+**Example:**
+
+```bash
+gogs repo create --name my-new-project --description "A fresh start" --private
+```
+
 ---
 
 ## Output Formats
@@ -369,6 +389,9 @@ Pretty-printed JSON with 2-space indentation.
 A complete issue-to-merge cycle using the CLI:
 
 ```bash
+# 0. Create the repo (one-time)
+gogs repo create --name my-project --description "A new thing" --private
+
 # 1. Discover a bug
 gogs issue create \
   --repo xing/gogs-agent \

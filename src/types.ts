@@ -110,6 +110,16 @@ export interface AppConfig {
 
 // ── Command parameter types ──
 
+export interface RepoInfoParams {
+  repo: string;
+}
+
+export interface RepoCreateParams {
+  name: string;
+  description?: string;
+  private?: boolean;
+}
+
 export interface IssueListParams {
   repo: string;
   state?: "open" | "closed" | "all";

@@ -1,6 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { loadConfig, resolveRepo } from "../src/config.js";
 
+// Mock user config module — tests control the return value per case
+vi.mock("../src/user-config.js", () => ({
+  loadUserConfig: vi.fn(),
+}));
+
+import { loadUserConfig } from "../src/user-config.js";
+
+const mockedLoadUserConfig = vi.mocked(loadUserConfig);
+
 describe("loadConfig", () => {
   const originalEnv = { ...process.env };
 
@@ -12,36 +21,75 @@ describe("loadConfig", () => {
     delete process.env.GOGS_DEFAULT_REPO;
     delete process.env.GOGS_TIMEOUT;
     delete process.env.GOGS_VERBOSE;
+    delete process.env.GOGS_OUTPUT;
+    // Default: no user config file present
+    mockedLoadUserConfig.mockReturnValue({});
   });
 
   afterEach(() => {
     process.env = originalEnv;
   });
 
-  it("throws ConfigError when GOGS_API_KEY is missing", () => {
+  // ── API key ──
+
+  it("throws ConfigError when neither env var nor user config provides apiKey", () => {
+    mockedLoadUserConfig.mockReturnValue({});
     expect(() => loadConfig({})).toThrow(
-      "GOGS_API_KEY is required. Set it in .env or as environment variable."
+      "GOGS_API_KEY is required. Set it via ~/.gogs/config.json, project .env, or environment variable."
     );
   });
 
-  it("reads GOGS_API_KEY from environment", () => {
-    process.env.GOGS_API_KEY = "test-key";
+  it("reads apiKey from environment variable", () => {
+    process.env.GOGS_API_KEY = "env-key";
     const config = loadConfig({});
-    expect(config.apiKey).toBe("test-key");
+    expect(config.apiKey).toBe("env-key");
   });
 
-  it("reads GOGS_BASE_URL from environment", () => {
-    process.env.GOGS_API_KEY = "test-key";
-    process.env.GOGS_BASE_URL = "https://example.com/api/v1";
+  it("reads apiKey from user config when env var is not set", () => {
+    mockedLoadUserConfig.mockReturnValue({ apiKey: "user-key" });
     const config = loadConfig({});
-    expect(config.baseUrl).toBe("https://example.com/api/v1");
+    expect(config.apiKey).toBe("user-key");
   });
 
-  it("uses default baseUrl when not set", () => {
+  it("env var apiKey takes precedence over user config apiKey", () => {
+    process.env.GOGS_API_KEY = "env-key";
+    mockedLoadUserConfig.mockReturnValue({ apiKey: "user-key" });
+    const config = loadConfig({});
+    expect(config.apiKey).toBe("env-key");
+  });
+
+  // ── baseUrl ──
+
+  it("reads baseUrl from environment variable", () => {
     process.env.GOGS_API_KEY = "test-key";
+    process.env.GOGS_BASE_URL = "https://env.example.com/api/v1";
+    const config = loadConfig({});
+    expect(config.baseUrl).toBe("https://env.example.com/api/v1");
+  });
+
+  it("reads baseUrl from user config when env var is not set", () => {
+    process.env.GOGS_API_KEY = "test-key";
+    mockedLoadUserConfig.mockReturnValue({ baseUrl: "https://user.example.com/api/v1" });
+    const config = loadConfig({});
+    expect(config.baseUrl).toBe("https://user.example.com/api/v1");
+  });
+
+  it("env var baseUrl takes precedence over user config baseUrl", () => {
+    process.env.GOGS_API_KEY = "test-key";
+    process.env.GOGS_BASE_URL = "https://env.example.com/api/v1";
+    mockedLoadUserConfig.mockReturnValue({ baseUrl: "https://user.example.com/api/v1" });
+    const config = loadConfig({});
+    expect(config.baseUrl).toBe("https://env.example.com/api/v1");
+  });
+
+  it("uses default baseUrl when neither env nor user config provides one", () => {
+    process.env.GOGS_API_KEY = "test-key";
+    mockedLoadUserConfig.mockReturnValue({});
     const config = loadConfig({});
     expect(config.baseUrl).toBe("https://git.desiyi.com/api/v1");
   });
+
+  // ── Other env vars (unchanged behavior) ──
 
   it("reads GOGS_DEFAULT_REPO from environment", () => {
     process.env.GOGS_API_KEY = "test-key";

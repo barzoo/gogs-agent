@@ -11,14 +11,14 @@ description: |
 
 # Gogs Agent Skill
 
-Operate Gogs repositories directly from Claude Code — create and manage issues, pull requests, comments, and labels.
+Operate Gogs repositories directly from Claude Code — create and manage repos, issues, pull requests, comments, and labels.
 
 ## Prerequisites
 
 - Node.js 18+ installed
-- `GOGS_API_KEY` environment variable set (or in .env file)
+- `GOGS_API_KEY` set via `~/.gogs/config.json`, env var, or project `.env`
 - Optional: `GOGS_BASE_URL` (defaults to https://git.desiyi.com/api/v1)
-- Optional: `GOGS_DEFAULT_REPO` as fallback for --repo
+- Optional: `GOGS_DEFAULT_REPO` — set in project `.env` as fallback for `--repo`
 
 ## Installation
 
@@ -40,7 +40,7 @@ List repository issues (issue resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `state` (string, optional): Filter by state: open, closed, all
 - `labels` (string, optional): Filter by labels (comma-separated)
 - `limit` (integer, optional): Number of results per page
@@ -53,7 +53,7 @@ Get a single issue (issue resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `number` (integer, required): Issue number
 ### gogs_issue_create
 
@@ -63,7 +63,7 @@ Create a new issue (issue resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `title` (string, required): Issue title
 - `body` (string, optional): Issue body/description
 - `labels` (string, optional): Comma-separated labels
@@ -77,7 +77,7 @@ Close an issue (issue resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `number` (integer, required): Issue number
 ### gogs_issue_reopen
 
@@ -87,7 +87,7 @@ Reopen a closed issue (issue resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `number` (integer, required): Issue number
 ### gogs_issue_update
 
@@ -97,7 +97,7 @@ Update an issue (issue resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `number` (integer, required): Issue number
 - `title` (string, optional): New title
 - `body` (string, optional): New body
@@ -113,7 +113,7 @@ List repository pull requests (pr resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `state` (string, optional): Filter by state: open, closed, all
 - `limit` (integer, optional): Results per page
 - `page` (integer, optional): Page number
@@ -125,7 +125,7 @@ Get a single pull request (pr resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `number` (integer, required): PR number
 ### gogs_pr_create
 
@@ -135,7 +135,7 @@ Create a new pull request (pr resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `title` (string, required): PR title
 - `head` (string, required): Source branch with changes
 - `base` (string, required): Target branch to merge into
@@ -149,7 +149,7 @@ Merge a pull request (pr resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `number` (integer, required): PR number
 - `strategy` (string, optional): Merge strategy: merge, rebase, squash
 ### gogs_pr_diff
@@ -160,7 +160,7 @@ Get pull request diff (pr resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, diff
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `number` (integer, required): PR number
 ### gogs_repo_info
 
@@ -170,7 +170,19 @@ Get repository information (repo resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
+### gogs_repo_create
+
+Create a new repository (repo resource)
+
+**Parameters:**
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (boolean, optional): Enable verbose logging to stderr
+- `name` (string, required): Repository name
+- `description` (string, optional): Repository description
+- `private` (boolean, optional): Make repository private
 ### gogs_comment_list
 
 List comments on an issue or PR (comment resource)
@@ -179,7 +191,7 @@ List comments on an issue or PR (comment resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `type` (string, required): Type: issue or pr
 - `number` (integer, required): Issue or PR number
 ### gogs_comment_create
@@ -190,7 +202,7 @@ Add a comment to an issue or PR (comment resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `type` (string, required): Type: issue or pr
 - `number` (integer, required): Issue or PR number
 - `body` (string, required): Comment text
@@ -202,7 +214,7 @@ List all labels for a repository (label resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 ### gogs_label_create
 
 Create a new label (label resource)
@@ -211,7 +223,7 @@ Create a new label (label resource)
 - `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
-- `verbose` (string, optional): Enable verbose logging to stderr
+- `verbose` (boolean, optional): Enable verbose logging to stderr
 - `name` (string, required): Label name
 - `color` (string, optional): Hex color code (e.g. #ee0701)
 
@@ -238,7 +250,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "state": {
@@ -280,7 +292,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "number": {
@@ -312,7 +324,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "title": {
@@ -360,7 +372,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "number": {
@@ -392,7 +404,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "number": {
@@ -424,7 +436,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "number": {
@@ -480,7 +492,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "state": {
@@ -518,7 +530,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "number": {
@@ -550,7 +562,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "title": {
@@ -600,7 +612,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "number": {
@@ -636,7 +648,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "number": {
@@ -668,11 +680,51 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         }
       },
       "required": []
+    }
+  },
+  {
+    "name": "gogs_repo_create",
+    "description": "Create a new repository (repo resource)",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "boolean",
+          "description": "Enable verbose logging to stderr"
+        },
+        "name": {
+          "type": "string",
+          "description": "Repository name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Repository description"
+        },
+        "private": {
+          "type": "boolean",
+          "description": "Make repository private"
+        }
+      },
+      "required": [
+        "name"
+      ]
     }
   },
   {
@@ -694,7 +746,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "type": {
@@ -731,7 +783,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "type": {
@@ -773,7 +825,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         }
       },
@@ -799,7 +851,7 @@ Create a new label (label resource)
           "description": "Write output to file instead of stdout"
         },
         "verbose": {
-          "type": "string",
+          "type": "boolean",
           "description": "Enable verbose logging to stderr"
         },
         "name": {
@@ -843,6 +895,11 @@ All tools return structured JSON to stdout:
 | 3 | Network error (timeout, DNS, connection refused) |
 
 ## Examples
+
+**Create a repo:**
+```bash
+gogs repo create --name my-project --description "A new project" --private
+```
 
 **List open issues:**
 ```bash

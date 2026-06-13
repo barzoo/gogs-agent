@@ -10,7 +10,7 @@
 
 ## Features
 
-- **16 CLI commands** covering issues, PRs, comments, labels, and repo metadata
+- **17 CLI commands** covering issues, PRs, comments, labels, and repo management
 - **3 output formats:** JSON (default), Markdown tables, plain text
 - **Multi-repo support:** `--repo` flag on every command, with env-var fallback
 - **Auto-generated Claude Code skill:** `skill.md` is rebuilt from CLI metadata on every build — no manual sync to maintain
@@ -30,11 +30,20 @@ npm install -g gogs-agent
 
 ### 2. Configure
 
-Create a `.env` file (or set environment variables):
+**One-time setup** — create `~/.gogs/config.json`:
+
+```json
+{
+  "apiKey": "your_gogs_api_token_here",
+  "baseUrl": "https://git.desiyi.com/api/v1"
+}
+```
+
+These are personal settings that rarely change. Set them once, all projects inherit them.
+
+**Per-project override** — drop a `.env` file when a project needs different values:
 
 ```bash
-GOGS_API_KEY=your_gogs_api_token_here
-GOGS_BASE_URL=https://git.desiyi.com/api/v1
 GOGS_DEFAULT_REPO=your-org/your-repo    # optional — skip --repo everywhere
 ```
 
@@ -74,7 +83,7 @@ gogs comment create --repo myorg/myrepo --type issue --number 5 --body "LGTM!"
 | **Pull Request** | `list` · `get` · `create` · `merge` · `diff` |
 | **Comment** | `list` · `create` |
 | **Label** | `list` · `create` |
-| **Repo** | `info` |
+| **Repo** | `info` · `create` |
 
 All commands follow: `gogs <resource> <action> [--flags]`
 
@@ -232,7 +241,7 @@ Load order: `CLI --flags` > `environment variables` > `.env file` > `built-in de
 git clone https://git.desiyi.com/xing/gogs-agent.git
 cd gogs-agent
 npm install
-npm test          # 77 tests, ~11s
+npm test          # 83 tests, ~11s
 npm run build     # compiles TypeScript + generates skill.md
 ```
 
@@ -242,7 +251,7 @@ npm run build     # compiles TypeScript + generates skill.md
 
 | Document | Content |
 |----------|---------|
-| [docs/commands.md](docs/commands.md) | Full command reference — every flag for all 16 commands |
+| [docs/commands.md](docs/commands.md) | Full command reference — every flag for all 17 commands |
 | [docs/configuration.md](docs/configuration.md) | Env vars, `.env` setup, config precedence chain |
 | [skill.md](skill.md) | Auto-generated Claude Code skill with JSON Schema tool definitions |
 
@@ -272,5 +281,5 @@ src/
     ├── pr.ts           # List, get, create, merge, diff
     ├── comment.ts      # List, create
     ├── label.ts        # List, create
-    └── repo.ts         # Info
+    └── repo.ts         # Info, create
 ```

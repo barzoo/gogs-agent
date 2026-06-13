@@ -5,10 +5,12 @@
 ## Priority Chain
 
 ```
-CLI --flags  >  Environment variables  >  .env file  >  Hardcoded defaults
+CLI --flags  >  Environment variables  >  Project .env  >  User ~/.gogs/config.json  >  Defaults
 ```
 
 A value set closer to the left always wins.
+
+User-level config sets your personal defaults (API key, server URL), project `.env` overrides for special cases, and CLI flags have the final say.
 
 ## Environment Variables
 
@@ -37,6 +39,28 @@ Or copy the template:
 cp .env.example .env
 # edit .env with your values
 ```
+
+## User Config (`~/.gogs/config.json`)
+
+For settings that are the same across all your projects (API key, server URL), create a one-time user-level config:
+
+```json
+{
+  "apiKey": "abc123your_token_here",
+  "baseUrl": "https://git.desiyi.com/api/v1"
+}
+```
+
+Place this file at `~/.gogs/config.json` (i.e., `<HOME>/.gogs/config.json` on all platforms).
+
+**Why this exists:** `GOGS_API_KEY` and `GOGS_BASE_URL` are personal — they don't change between projects. Set them once here and skip creating `.env` files in every repository. Project `.env` still works and takes precedence when you need a per-project override.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `apiKey` | string | Your Gogs API token |
+| `baseUrl` | string | Base URL of your Gogs instance's API |
+
+Both fields are optional — any field left out falls through to the next priority level.
 
 ## CLI Flags
 
@@ -73,7 +97,7 @@ gogs issue list --repo myorg/myrepo --output issues.md
 
 On startup, `gogs-agent` validates:
 
-- **Missing `GOGS_API_KEY`** → exit 1: `"GOGS_API_KEY is required. Set it in .env or as environment variable."`
+- **Missing `GOGS_API_KEY`** → exit 1: `"GOGS_API_KEY is required. Set it via ~/.gogs/config.json, project .env, or environment variable."`
 - **Missing `--repo` (and no `GOGS_DEFAULT_REPO`)** → exit 1: `"--repo <owner/repo> is required."`
 
 ## Exit Codes
@@ -102,7 +126,7 @@ fi
 1. Log into your Gogs instance
 2. Go to **Settings → Applications**
 3. Generate a new token with appropriate scopes (read/write for full functionality)
-4. Set `GOGS_API_KEY=<token>` in your environment or `.env`
+4. Set `GOGS_API_KEY=<token>` in your environment, `~/.gogs/config.json`, or project `.env`
 
 The token is sent as `Authorization: token <apiKey>` header on every API request.
 

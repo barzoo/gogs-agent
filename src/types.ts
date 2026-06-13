@@ -16,7 +16,7 @@ export interface Label {
 export interface Milestone {
   id: number;
   title: string;
-  state: string;
+  state: "open" | "closed";
 }
 
 export interface Issue {

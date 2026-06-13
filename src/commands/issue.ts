@@ -42,7 +42,7 @@ export async function issueCreate(
 ): Promise<Issue> {
   const body: Record<string, unknown> = { title: params.title };
   if (params.body) body.body = params.body;
-  if (params.labels) body.labels = params.labels;
+  // Note: labels require int64 IDs in Gogs API — label name resolution is Phase 2
   if (params.assignee) body.assignee = params.assignee;
   if (params.milestone) body.milestone = params.milestone;
 

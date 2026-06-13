@@ -48,3 +48,74 @@ describe("formatOutput", () => {
     expect(result).toBe(JSON.stringify({ ok: true, data: sampleData }, null, 2));
   });
 });
+
+const makeIssue = (n: number, title: string, state: "open" | "closed") => ({
+  id: n,
+  number: n,
+  title,
+  body: "",
+  state,
+  labels: [{ id: 1, name: "bug", color: "#ee0701" }],
+  assignee: null,
+  milestone: null,
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-01-01T00:00:00Z",
+  html_url: `https://git.desiyi.com/xing/repo/issues/${n}`,
+  comments: 2,
+});
+
+const makePR = (n: number, title: string, state: "open" | "closed", merged: boolean) => ({
+  id: n, number: n, title, body: "", state,
+  head: { label: "", ref: "feature", sha: "abc" },
+  base: { label: "", ref: "main", sha: "def" },
+  assignee: null, merged, merged_by: null,
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-01-01T00:00:00Z",
+  html_url: `https://git.desiyi.com/xing/repo/pulls/${n}`,
+});
+
+const makeComment = (body: string, login: string) => ({
+  id: 1, body,
+  user: { id: 1, login, full_name: "", avatar_url: "" },
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-01-01T00:00:00Z",
+});
+
+const makeLabel = (id: number, name: string, color: string) => ({
+  id, name, color,
+});
+
+describe("formatOutput markdown list tables", () => {
+  it("renders issue list as markdown table", () => {
+    const issues = [makeIssue(1, "Fix bug", "open"), makeIssue(2, "Add feat", "closed")];
+    const result = formatOutput(true, issues, "markdown");
+    expect(result).toContain("| # | Title | State | Labels | Comments |");
+    expect(result).toContain("| 1 |");
+    expect(result).toContain("Fix bug");
+    expect(result).toContain("bug");
+    expect(result).toContain("```json");
+  });
+
+  it("renders PR list as markdown table", () => {
+    const prs = [makePR(1, "Feature branch", "open", false)];
+    const result = formatOutput(true, prs, "markdown");
+    expect(result).toContain("| # | Title | State | Source → Target | Merged |");
+    expect(result).toContain("feature → main");
+  });
+
+  it("renders comment list as markdown table", () => {
+    const comments = [makeComment("Looks good", "xing")];
+    const result = formatOutput(true, comments, "markdown");
+    expect(result).toContain("| User | Created | Body |");
+    expect(result).toContain("xing");
+    expect(result).toContain("Looks good");
+  });
+
+  it("renders label list as markdown table", () => {
+    const labels = [makeLabel(1, "bug", "#ee0701")];
+    const result = formatOutput(true, labels, "markdown");
+    expect(result).toContain("| ID | Name | Color |");
+    expect(result).toContain("bug");
+    expect(result).toContain("`#ee0701`");
+  });
+});

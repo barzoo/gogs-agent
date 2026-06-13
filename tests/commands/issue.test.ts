@@ -73,7 +73,7 @@ describe("issueCreate", () => {
     expect(result).toEqual(mockIssue);
   });
 
-  it("includes optional body, labels, assignee, milestone", async () => {
+  it("includes optional body, assignee, milestone", async () => {
     const mockClient: GogsClient = {
       request: vi.fn().mockResolvedValue({ ok: true, data: makeMockIssue(101, "Full") }),
     };
@@ -82,7 +82,6 @@ describe("issueCreate", () => {
       repo: "xing/test",
       title: "Full",
       body: "Description",
-      labels: "bug,urgent",
       assignee: "xing",
       milestone: 3,
     });
@@ -91,7 +90,6 @@ describe("issueCreate", () => {
       body: {
         title: "Full",
         body: "Description",
-        labels: "bug,urgent",
         assignee: "xing",
         milestone: 3,
       },

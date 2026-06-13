@@ -44,7 +44,7 @@ export function createGogsClient(config: GogsClientConfig): GogsClient {
     let retryCount = 0;
     const maxRetries = method === "GET" ? 3 : 0;
 
-    while (retryCount <= maxRetries) {
+    while (true) {
       let response: Response;
       try {
         response = await fetch(url, fetchOpts);

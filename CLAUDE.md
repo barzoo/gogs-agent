@@ -49,6 +49,25 @@ scripts/generate-skill.ts  Build-time: reads Commander tree → writes skill.md
 
 `inferType()` uses a hybrid approach: checks `opt.parseArg` first, falls back to `NUMERIC_OPTION_NAMES` Set (matching `src/cli.ts` naming conventions for `--number`, `--limit`, `--page`, `--milestone`).
 
+### Git commit conventions
+
+- **Subject line**: use [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`.
+- **Multiline messages** — use the **PowerShell tool** (not Bash) for `git commit`, so PowerShell here-strings (`@'…'@`) work correctly:
+
+  ```powershell
+  git commit -m @'
+  feat: short description
+
+  - bullet points for details
+  - more context
+
+  Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+  '@
+  ```
+
+- **Avoid the Bash tool for `git commit`** — bash does not understand PowerShell here-strings. The opening `@'` leaks the `@` into the commit message, producing subjects like `@ feat: …`. The `.githooks/commit-msg` hook rejects such messages.
+- **Hook enforcement** — `git config core.hooksPath .githooks` is set; the `commit-msg` hook rejects any subject line that starts with `@`.
+
 ### Testing conventions
 
 - Unit tests mock `GogsClient` (never real HTTP)

@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────
+# commit-msg  —  block here-string artifacts in commit subjects
+# ─────────────────────────────────────────────────────────────
+# Rejects commit messages whose first line starts with "@" —
+# a common artifact when PowerShell here-strings (@'…'@) are
+# accidentally passed through the Bash tool, where bash treats
+# the opening @' literally and includes the @ in the message.
+#
+# Configured via:  git config core.hooksPath .githooks
+# ─────────────────────────────────────────────────────────────
+
+set -euo pipefail
+
+COMMIT_MSG_FILE="$1"
+
+# Read the first line (subject) of the commit message
+read -r FIRST_LINE < "$COMMIT_MSG_FILE"
+
+# Check if the first line starts with "@"
+if [[ "$FIRST_LINE" =~ ^@ ]]; then
+  cat >&2 <<'ERR'
+╔══════════════════════════════════════════════════════════════╗
+║  COMMIT REJECTED — leading "@" in commit subject            ║
+╠══════════════════════════════════════════════════════════════╣
+║  Your commit subject starts with "@":                       ║
+║                                                            ║
+║    !!!  PROBLEM:  @some-text-here                           ║
+║    ✓✓✓  CORRECT:   some-text-here                          ║
+║                                                            ║
+║  This is usually caused by PowerShell here-string syntax    ║
+║  (@'…'@) leaking into a Bash-tool git commit command.      ║
+║                                                            ║
+║  Fix: remove the leading "@" from your commit message,      ║
+║  and use proper quoting for multiline messages:             ║
+║                                                            ║
+║    Bash tool:   git commit -m "first line                   ║
+║                              more lines"                   ║
+║    PS tool:     git commit -m @'                           ║
+║                              first line                    ║
+║                              more lines                    ║
+║                              '@                             ║
+╚══════════════════════════════════════════════════════════════╝
+ERR
+  exit 1
+fi
+
+# Optional: also reject commit bodies that contain an isolated "@" on
+# a line by itself (the closing '@ artifact).
+# We skip this by default because commit messages often contain
+# email addresses with @.
+
+exit 0

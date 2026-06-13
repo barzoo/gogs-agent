@@ -4,6 +4,7 @@ import type { AppConfig } from "./types.js";
 export function loadConfig(cliOpts: {
   repo?: string;
   format?: "json" | "markdown" | "text";
+  output?: string;
 }): AppConfig {
   const apiKey = process.env.GOGS_API_KEY;
   if (!apiKey) {
@@ -22,6 +23,7 @@ export function loadConfig(cliOpts: {
       : 30000,
     repo: cliOpts.repo,
     format: cliOpts.format || "json",
+    output: cliOpts.output || process.env.GOGS_OUTPUT || undefined,
   };
 }
 

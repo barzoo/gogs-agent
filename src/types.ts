@@ -105,6 +105,7 @@ export interface AppConfig {
   timeout: number;
   format: "json" | "markdown" | "text";
   repo?: string;
+  output?: string;  // NEW
 }
 
 // ── Command parameter types ──

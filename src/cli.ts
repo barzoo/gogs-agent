@@ -4,6 +4,8 @@ import { Command } from "commander";
 import { loadConfig, resolveRepo } from "./config.js";
 import { createGogsClient } from "./client.js";
 import { formatOutput } from "./formatters.js";
+import { inferFormatFromPath, writeOutput } from "./output.js";
+import type { AppConfig } from "./types.js";
 import { repoInfo } from "./commands/repo.js";
 import { issueList, issueGet, issueCreate, issueCloseReopen, issueUpdate } from "./commands/issue.js";
 import { prList, prGet, prCreate, prMerge, prDiff } from "./commands/pr.js";
@@ -13,12 +15,18 @@ import { ConfigError, ValidationError, ApiError, NetworkError } from "./errors.j
 
 const program = new Command();
 
+async function printResult(result: unknown, config: AppConfig): Promise<void> {
+  const text = formatOutput(true, result, config.format);
+  await writeOutput(text, config.output);
+}
+
 program
   .name("gogs")
   .description("CLI tool for operating Gogs repositories")
   .version("0.1.0")
   .option("--repo <owner/repo>", "Target repository (or set GOGS_DEFAULT_REPO)")
   .option("--format <fmt>", "Output format: json, markdown, text", "json")
+  .option("--output <path>", "Write output to file instead of stdout")
   .option("--verbose", "Enable verbose logging to stderr", false);
 
 // ── Issue commands ──
@@ -44,7 +52,7 @@ issueCmd
         limit: options.limit,
         page: options.page,
       });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -56,7 +64,7 @@ issueCmd
     await run(async (config, client) => {
       const repo = resolveRepo(config, config.repo);
       const result = await issueGet(client, { repo, number: options.number });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -79,7 +87,7 @@ issueCmd
         assignee: options.assignee,
         milestone: options.milestone,
       });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -91,7 +99,7 @@ issueCmd
     await run(async (config, client) => {
       const repo = resolveRepo(config, config.repo);
       const result = await issueCloseReopen(client, { repo, number: options.number, action: "close" });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -103,7 +111,7 @@ issueCmd
     await run(async (config, client) => {
       const repo = resolveRepo(config, config.repo);
       const result = await issueCloseReopen(client, { repo, number: options.number, action: "reopen" });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -130,7 +138,7 @@ issueCmd
         milestone: options.milestone,
         labels: options.labels,
       });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -155,7 +163,7 @@ prCmd
         limit: options.limit,
         page: options.page,
       });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -167,7 +175,7 @@ prCmd
     await run(async (config, client) => {
       const repo = resolveRepo(config, config.repo);
       const result = await prGet(client, { repo, number: options.number });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -190,7 +198,7 @@ prCmd
         body: options.body,
         assignee: options.assignee,
       });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -207,7 +215,7 @@ prCmd
         number: options.number,
         strategy: options.strategy,
       });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -220,7 +228,7 @@ prCmd
     await run(async (config, client) => {
       const repo = resolveRepo(config, config.repo);
       const result = await prDiff(client, { repo, number: options.number });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -237,7 +245,7 @@ repoCmd
     await run(async (config, client) => {
       const repo = resolveRepo(config, config.repo);
       const result = await repoInfo(client, { repo });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -260,7 +268,7 @@ commentCmd
         type: options.type,
         number: options.number,
       });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -279,7 +287,7 @@ commentCmd
         number: options.number,
         body: options.body,
       });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -296,7 +304,7 @@ labelCmd
     await run(async (config, client) => {
       const repo = resolveRepo(config, config.repo);
       const result = await labelList(client, { repo });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -313,7 +321,7 @@ labelCmd
         name: options.name,
         color: options.color,
       });
-      console.log(formatOutput(true, result, config.format));
+      await printResult(result, config);
     });
   });
 
@@ -322,7 +330,15 @@ labelCmd
 async function run(fn: (config: ReturnType<typeof loadConfig>, client: ReturnType<typeof createGogsClient>) => Promise<void>) {
   try {
     const cliOpts = program.opts();
-    const config = loadConfig({ repo: cliOpts.repo, format: cliOpts.format });
+    const outputPath = cliOpts.output as string | undefined;
+    const effectiveFormat = inferFormatFromPath(outputPath || "") || cliOpts.format;
+
+    const config = loadConfig({
+      repo: cliOpts.repo,
+      format: effectiveFormat,
+      output: outputPath,
+    });
+
     const client = createGogsClient({
       baseUrl: config.baseUrl,
       apiKey: config.apiKey,
@@ -331,6 +347,9 @@ async function run(fn: (config: ReturnType<typeof loadConfig>, client: ReturnTyp
 
     if (config.verbose) {
       console.error(`[verbose] Gogs API base: ${config.baseUrl}`);
+      if (config.output) {
+        console.error(`[verbose] Output file: ${config.output}`);
+      }
     }
 
     await fn(config, client);

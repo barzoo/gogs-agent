@@ -1,4 +1,5 @@
 import type { GogsClient } from "../client.js";
+import { resolveLabels } from "../labels.js";
 import type {
   Issue,
   IssueListParams,
@@ -42,7 +43,18 @@ export async function issueCreate(
 ): Promise<Issue> {
   const body: Record<string, unknown> = { title: params.title };
   if (params.body) body.body = params.body;
-  // Note: labels require int64 IDs in Gogs API — label name resolution is Phase 2
+
+  // Resolve label names → label IDs (auto-creates missing labels)
+  if (params.labels) {
+    const names = params.labels
+      .split(",")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    if (names.length) {
+      body.labels = await resolveLabels(client, params.repo, names);
+    }
+  }
+
   if (params.assignee) body.assignee = params.assignee;
   if (params.milestone) body.milestone = params.milestone;
 

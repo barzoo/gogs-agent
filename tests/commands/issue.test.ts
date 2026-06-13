@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { issueList, issueGet, issueCreate, issueCloseReopen } from "../../src/commands/issue.js";
 import type { GogsClient } from "../../src/client.js";
-import type { Issue } from "../../src/types.js";
+import type { Issue, Label } from "../../src/types.js";
 
 const makeMockIssue = (n: number, title: string, state: "open" | "closed" = "open"): Issue => ({
   id: n, number: n, title, body: "", state,
@@ -73,27 +73,41 @@ describe("issueCreate", () => {
     expect(result).toEqual(mockIssue);
   });
 
-  it("includes optional body, assignee, milestone", async () => {
+  it("includes optional body, labels, assignee, milestone", async () => {
+    const mockLabelsList: Label[] = [
+      { id: 1, name: "bug", color: "#ee0701" },
+      { id: 2, name: "urgent", color: "#d93f0b" },
+    ];
     const mockClient: GogsClient = {
-      request: vi.fn().mockResolvedValue({ ok: true, data: makeMockIssue(101, "Full") }),
+      request: vi.fn()
+        .mockResolvedValueOnce({ ok: true, data: mockLabelsList })
+        .mockResolvedValueOnce({ ok: true, data: makeMockIssue(101, "Full") }),
     };
 
     await issueCreate(mockClient, {
       repo: "xing/test",
       title: "Full",
       body: "Description",
+      labels: "bug,urgent",
       assignee: "xing",
       milestone: 3,
     });
 
-    expect(mockClient.request).toHaveBeenCalledWith("POST", "/repos/xing/test/issues", {
-      body: {
-        title: "Full",
-        body: "Description",
-        assignee: "xing",
-        milestone: 3,
-      },
-    });
+    expect(mockClient.request).toHaveBeenNthCalledWith(1,
+      "GET", "/repos/xing/test/labels"
+    );
+    expect(mockClient.request).toHaveBeenNthCalledWith(2,
+      "POST", "/repos/xing/test/issues",
+      {
+        body: {
+          title: "Full",
+          body: "Description",
+          labels: [1, 2],
+          assignee: "xing",
+          milestone: 3,
+        },
+      }
+    );
   });
 });
 

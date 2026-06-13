@@ -8,6 +8,7 @@ import { repoInfo } from "./commands/repo.js";
 import { issueList, issueGet, issueCreate, issueCloseReopen } from "./commands/issue.js";
 import { prList, prGet, prCreate, prMerge, prDiff } from "./commands/pr.js";
 import { commentList, commentCreate } from "./commands/comment.js";
+import { labelList, labelCreate } from "./commands/label.js";
 import { ConfigError, ValidationError, ApiError, NetworkError } from "./errors.js";
 
 const program = new Command();
@@ -250,6 +251,40 @@ commentCmd
         type: options.type,
         number: options.number,
         body: options.body,
+      });
+      console.log(formatOutput(true, result, config.format));
+    });
+  });
+
+// ── Label commands ──
+
+const labelCmd = program
+  .command("label")
+  .description("Label operations");
+
+labelCmd
+  .command("list")
+  .description("List all labels for a repository")
+  .action(async () => {
+    await run(async (config, client) => {
+      const repo = resolveRepo(config, config.repo);
+      const result = await labelList(client, { repo });
+      console.log(formatOutput(true, result, config.format));
+    });
+  });
+
+labelCmd
+  .command("create")
+  .description("Create a new label")
+  .requiredOption("--name <name>", "Label name")
+  .option("--color <hex>", "Hex color code (e.g. #ee0701)")
+  .action(async (options) => {
+    await run(async (config, client) => {
+      const repo = resolveRepo(config, config.repo);
+      const result = await labelCreate(client, {
+        repo,
+        name: options.name,
+        color: options.color,
       });
       console.log(formatOutput(true, result, config.format));
     });

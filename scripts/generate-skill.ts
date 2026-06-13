@@ -5,7 +5,14 @@ import { Command } from "commander";
 import { writeFileSync } from "fs";
 
 const program = new Command();
-program.name("gogs").description("CLI tool for operating Gogs repositories").version("0.1.0");
+program
+  .name("gogs")
+  .description("CLI tool for operating Gogs repositories")
+  .version("0.1.0")
+  .option("--repo <owner/repo>", "Target repository (or set GOGS_DEFAULT_REPO)")
+  .option("--format <fmt>", "Output format: json, markdown, text", "json")
+  .option("--output <path>", "Write output to file instead of stdout")
+  .option("--verbose", "Enable verbose logging to stderr", false);
 
 const issue = program.command("issue").description("Issue operations");
 issue.command("list").description("List repository issues").option("--state <state>", "Filter by state: open, closed, all").option("--labels <labels>", "Filter by labels (comma-separated)").option("--limit <n>", "Number of results per page").option("--page <n>", "Page number");
@@ -43,6 +50,13 @@ interface ToolDef {
 function buildTools(): ToolDef[] {
   const tools: ToolDef[] = [];
 
+  // Global options defined on the root program
+  const globalOptions = program.options.map((opt) => ({
+    name: opt.long!.replace(/^--/, ""),
+    description: opt.description,
+    required: opt.required,
+  }));
+
   for (const resourceCmd of program.commands) {
     const resource = resourceCmd.name();
     for (const actionCmd of resourceCmd.commands) {
@@ -57,6 +71,20 @@ function buildTools(): ToolDef[] {
         type: "string",
         description: "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)",
       };
+
+      // Add global options (--format, --output, --verbose) — all optional
+      for (const opt of globalOptions) {
+        const type = opt.name.includes("number") || opt.name.includes("limit") || opt.name.includes("page") || opt.name.includes("milestone")
+          ? "integer"
+          : "string";
+
+        properties[opt.name] = {
+          type,
+          description: opt.description,
+        };
+
+        // Global options are never required
+      }
 
       for (const opt of actionCmd.options) {
         const name = opt.long!.replace(/^--/, "");

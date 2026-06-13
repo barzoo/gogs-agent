@@ -13,7 +13,11 @@ This skill provides the following tools. Call them with structured arguments to 
 List repository issues (issue resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `state` (string, required): Filter by state: open, closed, all
 - `labels` (string, required): Filter by labels (comma-separated)
 - `limit` (integer, required): Number of results per page
@@ -24,7 +28,11 @@ List repository issues (issue resource)
 Get a single issue (issue resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `number` (integer, required): Issue number
 
 ### gogs_issue_create
@@ -32,7 +40,11 @@ Get a single issue (issue resource)
 Create a new issue (issue resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `title` (string, required): Issue title
 - `body` (string, required): Issue body/description
 - `labels` (string, required): Comma-separated labels
@@ -44,7 +56,11 @@ Create a new issue (issue resource)
 Close an issue (issue resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `number` (integer, required): Issue number
 
 ### gogs_issue_reopen
@@ -52,7 +68,11 @@ Close an issue (issue resource)
 Reopen a closed issue (issue resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `number` (integer, required): Issue number
 
 ### gogs_pr_list
@@ -60,7 +80,11 @@ Reopen a closed issue (issue resource)
 List repository pull requests (pr resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `state` (string, required): Filter by state: open, closed, all
 - `limit` (integer, required): Results per page
 - `page` (integer, required): Page number
@@ -70,7 +94,11 @@ List repository pull requests (pr resource)
 Get a single pull request (pr resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `number` (integer, required): PR number
 
 ### gogs_pr_create
@@ -78,7 +106,11 @@ Get a single pull request (pr resource)
 Create a new pull request (pr resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `title` (string, required): PR title
 - `head` (string, required): Source branch with changes
 - `base` (string, required): Target branch to merge into
@@ -90,7 +122,11 @@ Create a new pull request (pr resource)
 Merge a pull request (pr resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `number` (integer, required): PR number
 - `strategy` (string, required): Merge strategy: merge, rebase, squash
 
@@ -99,23 +135,34 @@ Merge a pull request (pr resource)
 Get pull request diff (pr resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
-- `number` (integer, required): PR number
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
 - `format` (string, required): Output format: json, diff
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
+- `number` (integer, required): PR number
 
 ### gogs_repo_info
 
 Get repository information (repo resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 
 ### gogs_comment_list
 
 List comments on an issue or PR (comment resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `type` (string, required): Type: issue or pr
 - `number` (integer, required): Issue or PR number
 
@@ -124,7 +171,11 @@ List comments on an issue or PR (comment resource)
 Add a comment to an issue or PR (comment resource)
 
 **Parameters:**
-- `repo` (string, optional): Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `version` (string, optional): output the version number
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (string, optional): Enable verbose logging to stderr
 - `type` (string, required): Type: issue or pr
 - `number` (integer, required): Issue or PR number
 - `body` (string, required): Comment text
@@ -142,7 +193,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "state": {
           "type": "string",
@@ -177,7 +244,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "number": {
           "type": "integer",
@@ -197,7 +280,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "title": {
           "type": "string",
@@ -237,7 +336,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "number": {
           "type": "integer",
@@ -257,7 +372,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "number": {
           "type": "integer",
@@ -277,7 +408,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "state": {
           "type": "string",
@@ -307,7 +454,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "number": {
           "type": "integer",
@@ -327,7 +490,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "title": {
           "type": "string",
@@ -367,7 +546,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "number": {
           "type": "integer",
@@ -392,15 +587,27 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
         },
-        "number": {
-          "type": "integer",
-          "description": "PR number"
+        "version": {
+          "type": "string",
+          "description": "output the version number"
         },
         "format": {
           "type": "string",
           "description": "Output format: json, diff"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
+        },
+        "number": {
+          "type": "integer",
+          "description": "PR number"
         }
       },
       "required": [
@@ -417,7 +624,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         }
       },
       "required": []
@@ -431,7 +654,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "type": {
           "type": "string",
@@ -456,7 +695,23 @@ Add a comment to an issue or PR (comment resource)
       "properties": {
         "repo": {
           "type": "string",
-          "description": "Target repository as owner/repo (or set GOGS_DEFAULT_REPO env var)"
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "version": {
+          "type": "string",
+          "description": "output the version number"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "string",
+          "description": "Enable verbose logging to stderr"
         },
         "type": {
           "type": "string",

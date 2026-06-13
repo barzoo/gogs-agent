@@ -5,7 +5,7 @@ import { loadConfig, resolveRepo } from "./config.js";
 import { createGogsClient } from "./client.js";
 import { formatOutput } from "./formatters.js";
 import { repoInfo } from "./commands/repo.js";
-import { issueList, issueGet, issueCreate, issueCloseReopen } from "./commands/issue.js";
+import { issueList, issueGet, issueCreate, issueCloseReopen, issueUpdate } from "./commands/issue.js";
 import { prList, prGet, prCreate, prMerge, prDiff } from "./commands/pr.js";
 import { commentList, commentCreate } from "./commands/comment.js";
 import { labelList, labelCreate } from "./commands/label.js";
@@ -103,6 +103,33 @@ issueCmd
     await run(async (config, client) => {
       const repo = resolveRepo(config, config.repo);
       const result = await issueCloseReopen(client, { repo, number: options.number, action: "reopen" });
+      console.log(formatOutput(true, result, config.format));
+    });
+  });
+
+issueCmd
+  .command("update")
+  .description("Update an issue")
+  .requiredOption("--number <n>", "Issue number", parseInt)
+  .option("--title <title>", "New title")
+  .option("--body <body>", "New body")
+  .option("--state <state>", "New state: open or closed")
+  .option("--assignee <user>", "Assignee username")
+  .option("--milestone <id>", "Milestone ID", parseInt)
+  .option("--labels <labels>", "Comma-separated label names")
+  .action(async (options) => {
+    await run(async (config, client) => {
+      const repo = resolveRepo(config, config.repo);
+      const result = await issueUpdate(client, {
+        repo,
+        number: options.number,
+        title: options.title,
+        body: options.body,
+        state: options.state,
+        assignee: options.assignee,
+        milestone: options.milestone,
+        labels: options.labels,
+      });
       console.log(formatOutput(true, result, config.format));
     });
   });

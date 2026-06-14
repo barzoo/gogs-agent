@@ -4,6 +4,8 @@ All commands follow: `gogs <resource> <action> [--flags]`
 
 ## Global Flags
 
+These flags work on every command:
+
 | Flag | Description |
 |------|-------------|
 | `--repo <owner/repo>` | Target repository — overrides `GOGS_DEFAULT_REPO` |
@@ -56,7 +58,7 @@ gogs issue get --repo xing/gogs-agent --number 42
 
 ### `gogs issue create`
 
-Create a new issue.
+Create a new issue. Label names are resolved to IDs automatically — labels that don't exist yet are created for you.
 
 ```bash
 gogs issue create --repo <owner/repo> --title "..." [--body "..."] [--labels a,b] [--assignee user] [--milestone id]
@@ -66,7 +68,7 @@ gogs issue create --repo <owner/repo> --title "..." [--body "..."] [--labels a,b
 |------|------|----------|-------------|
 | `--title` | string | **Yes** | Issue title |
 | `--body` | string | No | Issue body/description (Markdown supported) |
-| `--labels` | string | No | Comma-separated label names |
+| `--labels` | string | No | Comma-separated label names — auto-resolved to IDs |
 | `--assignee` | string | No | Assignee username |
 | `--milestone` | integer | No | Milestone ID |
 
@@ -83,7 +85,7 @@ gogs issue create \
 
 ### `gogs issue update`
 
-Update an existing issue. Only provided fields are changed — omitted fields stay as-is.
+Update an existing issue. Only the fields you provide are changed — everything else stays as-is.
 
 ```bash
 gogs issue update --repo <owner/repo> --number <n> [--title "..."] [--body "..."] [--state open|closed] [--assignee user] [--milestone id] [--labels a,b]
@@ -99,10 +101,12 @@ gogs issue update --repo <owner/repo> --number <n> [--title "..."] [--body "..."
 | `--milestone` | integer | No | New milestone ID |
 | `--labels` | string | No | Comma-separated label names (replaces all labels) |
 
+At least one field is required. Passing none is a validation error.
+
 **Example:**
 
 ```bash
-gogs issue update --repo xing/gogs-agent --number 42 --state closed
+gogs issue update --repo xing/gogs-agent --number 42 --title "Fixed in v2" --state closed
 ```
 
 ### `gogs issue close`
@@ -197,7 +201,7 @@ gogs pr merge --repo <owner/repo> --number <n> [--strategy merge|rebase|squash]
 | Flag | Type | Required | Description |
 |------|------|----------|-------------|
 | `--number` | integer | **Yes** | PR number |
-| `--strategy` | string | No | Merge strategy. One of `merge` (default), `rebase`, or `squash` |
+| `--strategy` | string | No | Merge strategy: `merge` (default), `rebase`, or `squash` |
 
 **Example:**
 
@@ -286,9 +290,27 @@ No additional flags.
 gogs label list --repo xing/gogs-agent --format markdown
 ```
 
+### `gogs label get`
+
+Get a single label by its ID.
+
+```bash
+gogs label get --repo <owner/repo> --id <n>
+```
+
+| Flag | Type | Required | Description |
+|------|------|----------|-------------|
+| `--id` | integer | **Yes** | Label ID |
+
+**Example:**
+
+```bash
+gogs label get --repo xing/gogs-agent --id 5
+```
+
 ### `gogs label create`
 
-Create a new label.
+Create a new label. If you don't specify a color, one is picked from a preset palette.
 
 ```bash
 gogs label create --repo <owner/repo> --name "..." [--color hex]
@@ -305,13 +327,58 @@ gogs label create --repo <owner/repo> --name "..." [--color hex]
 gogs label create --repo xing/gogs-agent --name "phase-2" --color "#0e8a16"
 ```
 
+### `gogs label update`
+
+Update a label's name and/or color. At least one of `--name` or `--color` must be provided.
+
+```bash
+gogs label update --repo <owner/repo> --id <n> [--name "..."] [--color hex]
+```
+
+| Flag | Type | Required | Description |
+|------|------|----------|-------------|
+| `--id` | integer | **Yes** | Label ID |
+| `--name` | string | No | New label name |
+| `--color` | string | No | New hex color code |
+
+**Examples:**
+
+```bash
+# Rename a label
+gogs label update --repo xing/gogs-agent --id 3 --name "critical"
+
+# Change a label's color
+gogs label update --repo xing/gogs-agent --id 3 --color "#ee0701"
+
+# Rename and recolor in one go
+gogs label update --repo xing/gogs-agent --id 3 --name "urgent" --color "#d93f0b"
+```
+
+### `gogs label delete`
+
+Delete a label by its ID.
+
+```bash
+gogs label delete --repo <owner/repo> --id <n>
+```
+
+| Flag | Type | Required | Description |
+|------|------|----------|-------------|
+| `--id` | integer | **Yes** | Label ID |
+
+**Example:**
+
+```bash
+gogs label delete --repo xing/gogs-agent --id 8
+```
+
 ---
 
 ## Repo Commands
 
 ### `gogs repo info`
 
-Get repository metadata — name, description, default branch, clone URLs, etc.
+Get repository metadata — name, description, default branch, clone URLs, and more.
 
 ```bash
 gogs repo info --repo <owner/repo>
@@ -351,7 +418,7 @@ gogs repo create --name my-new-project --description "A fresh start" --private
 
 ### JSON (default)
 
-Structured, one line (no trailing newline). Suitable for programmatic consumption.
+Structured, single-line output suitable for programmatic consumption.
 
 ```json
 {"ok":true,"data":{"id":1,"number":42,"title":"Fix login bug","state":"open",...}}
@@ -359,7 +426,7 @@ Structured, one line (no trailing newline). Suitable for programmatic consumptio
 
 ### Markdown
 
-Human-readable tables and links. Suitable for displaying results directly to users.
+Human-readable tables and links. Lists (issues, PRs, comments, labels) are rendered as tables with a collapsible JSON block appended. Single entities show key fields followed by a JSON block.
 
 ```markdown
 **Status**: ✅ Success
@@ -367,9 +434,11 @@ Human-readable tables and links. Suitable for displaying results directly to use
 | # | Title | State | Labels | Comments |
 |---|-------|-------|--------|----------|
 | 42 | [Fix login bug](https://...) | open | bug, urgent | 3 |
-```
 
-Issue lists, PR lists, comment lists, and label lists are all rendered as tables. Single-entity results show title, state, body, and a JSON code block.
+```json
+[...]
+```
+```
 
 ### Text
 
@@ -384,15 +453,14 @@ Pretty-printed JSON with 2-space indentation.
 }
 ```
 
-## Development Workflow Example
+---
 
-A complete issue-to-merge cycle using the CLI:
+## Complete Workflow Example
+
+A full cycle — from discovering a bug to merging the fix:
 
 ```bash
-# 0. Create the repo (one-time)
-gogs repo create --name my-project --description "A new thing" --private
-
-# 1. Discover a bug
+# 1. Create an issue for the bug
 gogs issue create \
   --repo xing/gogs-agent \
   --title "Bug: crash on empty input" \
@@ -405,7 +473,7 @@ gogs comment create --repo xing/gogs-agent --type issue --number 42 --body "I ca
 # 3. Create fix branch (git, not gogs)
 git checkout -b fix/empty-input main
 
-# 4. Fix and push, then create PR
+# 4. Open a PR
 gogs pr create \
   --repo xing/gogs-agent \
   --title "Fix: guard against empty input" \
@@ -425,11 +493,13 @@ gogs pr merge --repo xing/gogs-agent --number 99 --strategy squash
 gogs issue close --repo xing/gogs-agent --number 42
 ```
 
+---
+
 ## Error Reference
 
 | Error Code | HTTP Status | Meaning |
 |------------|-------------|---------|
-| `CONFIG_ERROR` | — | Missing/invalid configuration (missing API key, no repo) |
+| `CONFIG_ERROR` | — | Missing or invalid configuration (no API key, no repo specified) |
 | `VALIDATION_ERROR` | — | Invalid command arguments |
 | `API_ERROR` | 400 | Bad request — check your input |
 | `API_ERROR` | 401/403 | Invalid or expired API token |

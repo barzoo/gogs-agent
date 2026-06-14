@@ -140,16 +140,19 @@ describe("issueCloseReopen", () => {
 });
 
 describe("issueUpdate", () => {
-  it("updates title only", async () => {
+  it("updates title only (no labels)", async () => {
     const updatedIssue = makeMockIssue(1, "New Title");
     const mockClient: GogsClient = {
-      request: vi.fn().mockResolvedValue({ ok: true, data: updatedIssue }),
+      // 1: PATCH (returned directly, no GET needed)
+      request: vi.fn()
+        .mockResolvedValueOnce({ ok: true, data: updatedIssue }),
     };
 
     const result = await issueUpdate(mockClient, {
       repo: "xing/test", number: 1, title: "New Title",
     });
 
+    expect(mockClient.request).toHaveBeenCalledTimes(1);
     expect(mockClient.request).toHaveBeenCalledWith(
       "PATCH", "/repos/xing/test/issues/1",
       { body: { title: "New Title" } }
@@ -157,42 +160,47 @@ describe("issueUpdate", () => {
     expect(result).toEqual(updatedIssue);
   });
 
-  it("updates body only", async () => {
+  it("updates body only (no labels)", async () => {
     const updatedIssue = makeMockIssue(1, "Old", "open");
     const mockClient: GogsClient = {
-      request: vi.fn().mockResolvedValue({ ok: true, data: updatedIssue }),
+      request: vi.fn()
+        .mockResolvedValueOnce({ ok: true, data: updatedIssue }),
     };
 
     await issueUpdate(mockClient, {
       repo: "xing/test", number: 1, body: "New body text",
     });
 
+    expect(mockClient.request).toHaveBeenCalledTimes(1);
     expect(mockClient.request).toHaveBeenCalledWith(
       "PATCH", "/repos/xing/test/issues/1",
       { body: { body: "New body text" } }
     );
   });
 
-  it("updates state only", async () => {
+  it("updates state only (no labels)", async () => {
     const updatedIssue = makeMockIssue(1, "Old", "closed");
     const mockClient: GogsClient = {
-      request: vi.fn().mockResolvedValue({ ok: true, data: updatedIssue }),
+      request: vi.fn()
+        .mockResolvedValueOnce({ ok: true, data: updatedIssue }),
     };
 
     await issueUpdate(mockClient, {
       repo: "xing/test", number: 1, state: "closed",
     });
 
+    expect(mockClient.request).toHaveBeenCalledTimes(1);
     expect(mockClient.request).toHaveBeenCalledWith(
       "PATCH", "/repos/xing/test/issues/1",
       { body: { state: "closed" } }
     );
   });
 
-  it("updates multiple fields at once", async () => {
+  it("updates multiple fields at once (no labels)", async () => {
     const updatedIssue = makeMockIssue(1, "New Title", "closed");
     const mockClient: GogsClient = {
-      request: vi.fn().mockResolvedValue({ ok: true, data: updatedIssue }),
+      request: vi.fn()
+        .mockResolvedValueOnce({ ok: true, data: updatedIssue }),
     };
 
     await issueUpdate(mockClient, {
@@ -202,13 +210,14 @@ describe("issueUpdate", () => {
       assignee: "xing",
     });
 
+    expect(mockClient.request).toHaveBeenCalledTimes(1);
     expect(mockClient.request).toHaveBeenCalledWith(
       "PATCH", "/repos/xing/test/issues/1",
       { body: { title: "New Title", state: "closed", assignee: "xing" } }
     );
   });
 
-  it("updates with labels (resolves names to IDs)", async () => {
+  it("updates labels only (uses PUT /labels endpoint + final GET)", async () => {
     const mockLabels: Label[] = [
       { id: 1, name: "bug", color: "#ee0701" },
       { id: 2, name: "urgent", color: "#d93f0b" },
@@ -216,8 +225,9 @@ describe("issueUpdate", () => {
     const updatedIssue = makeMockIssue(1, "Old");
     const mockClient: GogsClient = {
       request: vi.fn()
-        .mockResolvedValueOnce({ ok: true, data: mockLabels })
-        .mockResolvedValueOnce({ ok: true, data: updatedIssue }),
+        .mockResolvedValueOnce({ ok: true, data: mockLabels })    // GET labels (resolveLabels)
+        .mockResolvedValueOnce({ ok: true, data: null })          // PUT labels
+        .mockResolvedValueOnce({ ok: true, data: updatedIssue }), // GET final state
     };
 
     await issueUpdate(mockClient, {
@@ -228,18 +238,23 @@ describe("issueUpdate", () => {
       "GET", "/repos/xing/test/labels"
     );
     expect(mockClient.request).toHaveBeenNthCalledWith(2,
-      "PATCH", "/repos/xing/test/issues/1",
+      "PUT", "/repos/xing/test/issues/1/labels",
       { body: { labels: [1, 2] } }
+    );
+    expect(mockClient.request).toHaveBeenNthCalledWith(3,
+      "GET", "/repos/xing/test/issues/1"
     );
   });
 
-  it("updates all fields at once", async () => {
+  it("updates all fields at once (PATCH + PUT labels + GET)", async () => {
     const mockLabels: Label[] = [{ id: 1, name: "bug", color: "#ee0701" }];
     const updatedIssue = makeMockIssue(1, "All Fields", "open");
     const mockClient: GogsClient = {
       request: vi.fn()
-        .mockResolvedValueOnce({ ok: true, data: mockLabels })
-        .mockResolvedValueOnce({ ok: true, data: updatedIssue }),
+        .mockResolvedValueOnce({ ok: true, data: mockLabels })    // GET labels
+        .mockResolvedValueOnce({ ok: true, data: updatedIssue })  // PATCH
+        .mockResolvedValueOnce({ ok: true, data: null })          // PUT labels
+        .mockResolvedValueOnce({ ok: true, data: updatedIssue }), // GET final state
     };
 
     await issueUpdate(mockClient, {
@@ -252,9 +267,19 @@ describe("issueUpdate", () => {
       labels: "bug",
     });
 
+    // PATCH without labels
     expect(mockClient.request).toHaveBeenNthCalledWith(2,
       "PATCH", "/repos/xing/test/issues/1",
-      { body: { title: "All Fields", body: "New body", state: "open", assignee: "xing", milestone: 2, labels: [1] } }
+      { body: { title: "All Fields", body: "New body", state: "open", assignee: "xing", milestone: 2 } }
+    );
+    // PUT labels
+    expect(mockClient.request).toHaveBeenNthCalledWith(3,
+      "PUT", "/repos/xing/test/issues/1/labels",
+      { body: { labels: [1] } }
+    );
+    // GET final state
+    expect(mockClient.request).toHaveBeenNthCalledWith(4,
+      "GET", "/repos/xing/test/issues/1"
     );
   });
 

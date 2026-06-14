@@ -4,7 +4,7 @@
 
 `gogs-agent` is a CLI for Gogs, the self-hosted Git service. Issues, pull requests, comments, labels — the things you'd do on GitHub, but on your own instance. Every command outputs JSON, so both humans and Claude Code agents can parse the result.
 
-> **Version:** 0.1.0 &emsp; **License:** MIT &emsp; **Runtime:** Node.js ≥ 18 &emsp; [中文文档](README.zh-CN.md)
+> **Version:** 0.2.2 &emsp; **License:** MIT &emsp; **Runtime:** Node.js ≥ 18 &emsp; [中文文档](README.zh-CN.md)
 
 ---
 
@@ -82,7 +82,7 @@ gogs comment create --repo myorg/myrepo --type issue --number 5 --body "LGTM!"
 | **Issue** | `list` · `get` · `create` · `update` · `close` · `reopen` |
 | **Pull Request** | `list` · `get` · `create` · `merge` · `diff` |
 | **Comment** | `list` · `create` |
-| **Label** | `list` · `create` |
+| **Label** | `list` · `get` · `create` · `update` · `delete` |
 | **Repo** | `info` · `create` |
 
 All commands follow: `gogs <resource> <action> [--flags]`
@@ -188,6 +188,9 @@ Once the skill is loaded, you don't need to remember CLI commands. Use natural l
 | "Close issue #3 as done" | `gogs issue close --number 3` |
 | "Show repo info" | `gogs repo info` |
 | "Update issue #7 title to 'Fixed in v2'" | `gogs issue update --number 7 --title "Fixed in v2"` |
+| "Get label #5 by its ID" | `gogs label get --id 5` |
+| "Rename label #3 to 'critical'" | `gogs label update --id 3 --name critical` |
+| "Delete label #8" | `gogs label delete --id 8` |
 
 #### Complete Development Cycle
 

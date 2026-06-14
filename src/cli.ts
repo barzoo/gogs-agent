@@ -10,7 +10,7 @@ import { repoInfo, repoCreate } from "./commands/repo.js";
 import { issueList, issueGet, issueCreate, issueCloseReopen, issueUpdate } from "./commands/issue.js";
 import { prList, prGet, prCreate, prMerge, prDiff } from "./commands/pr.js";
 import { commentList, commentCreate } from "./commands/comment.js";
-import { labelList, labelCreate } from "./commands/label.js";
+import { labelList, labelGet, labelCreate, labelUpdate, labelDelete } from "./commands/label.js";
 import { ConfigError, ValidationError, ApiError, NetworkError } from "./errors.js";
 
 const program = new Command();
@@ -326,6 +326,18 @@ labelCmd
   });
 
 labelCmd
+  .command("get")
+  .description("Get a single label")
+  .requiredOption("--id <n>", "Label ID", parseInt)
+  .action(async (options) => {
+    await run(async (config, client) => {
+      const repo = resolveRepo(config, config.repo);
+      const result = await labelGet(client, { repo, id: options.id });
+      await printResult(result, config);
+    });
+  });
+
+labelCmd
   .command("create")
   .description("Create a new label")
   .requiredOption("--name <name>", "Label name")
@@ -338,6 +350,37 @@ labelCmd
         name: options.name,
         color: options.color,
       });
+      await printResult(result, config);
+    });
+  });
+
+labelCmd
+  .command("update")
+  .description("Update a label")
+  .requiredOption("--id <n>", "Label ID", parseInt)
+  .option("--name <name>", "New label name")
+  .option("--color <hex>", "New hex color code")
+  .action(async (options) => {
+    await run(async (config, client) => {
+      const repo = resolveRepo(config, config.repo);
+      const result = await labelUpdate(client, {
+        repo,
+        id: options.id,
+        name: options.name,
+        color: options.color,
+      });
+      await printResult(result, config);
+    });
+  });
+
+labelCmd
+  .command("delete")
+  .description("Delete a label")
+  .requiredOption("--id <n>", "Label ID", parseInt)
+  .action(async (options) => {
+    await run(async (config, client) => {
+      const repo = resolveRepo(config, config.repo);
+      const result = await labelDelete(client, { repo, id: options.id });
       await printResult(result, config);
     });
   });

@@ -4,7 +4,7 @@
 
 `gogs-agent` 是 Gogs 自托管 Git 服务的 CLI 工具。Issue、PR、评论、标签 —— GitHub 上能做的事，在自己的 Gogs 实例上也能做。所有命令输出 JSON，人和 Claude Code 智能体都能直接解析。
 
-> **版本：** 0.1.0 &emsp; **协议：** MIT &emsp; **运行时：** Node.js ≥ 18 &emsp; [English](README.md)
+> **版本：** 0.2.2 &emsp; **协议：** MIT &emsp; **运行时：** Node.js ≥ 18 &emsp; [English](README.md)
 
 ---
 
@@ -85,7 +85,7 @@ gogs comment create --repo myorg/myrepo --type issue --number 5 --body "LGTM！"
 | **Issue** | `list` · `get` · `create` · `update` · `close` · `reopen` |
 | **Pull Request** | `list` · `get` · `create` · `merge` · `diff` |
 | **评论** | `list` · `create` |
-| **标签** | `list` · `create` |
+| **标签** | `list` · `get` · `create` · `update` · `delete` |
 | **仓库** | `info` · `create` |
 
 所有命令格式：`gogs <资源> <操作> [--参数]`
@@ -192,6 +192,9 @@ Skill 加载后，你不需要记忆任何 CLI 命令，直接用自然语言跟
 | "查看仓库信息" | `gogs repo info` |
 | "创建一个叫 backend 的新仓库" | `gogs repo create --name backend --private` |
 | "把 7 号 issue 的标题改成「v2 已修复」" | `gogs issue update --number 7 --title "v2 已修复"` |
+| "根据 ID 获取标签 #5" | `gogs label get --id 5` |
+| "把 3 号标签改名为 'critical'" | `gogs label update --id 3 --name critical` |
+| "删除标签 #8" | `gogs label delete --id 8` |
 
 #### 完整开发流程示例
 

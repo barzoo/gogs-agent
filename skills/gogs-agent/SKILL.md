@@ -215,6 +215,16 @@ List all labels for a repository (label resource)
 - `format` (string, optional): Output format: json, markdown, text
 - `output` (string, optional): Write output to file instead of stdout
 - `verbose` (boolean, optional): Enable verbose logging to stderr
+### gogs_label_get
+
+Get a single label (label resource)
+
+**Parameters:**
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (boolean, optional): Enable verbose logging to stderr
+- `id` (integer, required): Label ID
 ### gogs_label_create
 
 Create a new label (label resource)
@@ -226,6 +236,28 @@ Create a new label (label resource)
 - `verbose` (boolean, optional): Enable verbose logging to stderr
 - `name` (string, required): Label name
 - `color` (string, optional): Hex color code (e.g. #ee0701)
+### gogs_label_update
+
+Update a label (label resource)
+
+**Parameters:**
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (boolean, optional): Enable verbose logging to stderr
+- `id` (integer, required): Label ID
+- `name` (string, optional): New label name
+- `color` (string, optional): New hex color code
+### gogs_label_delete
+
+Delete a label (label resource)
+
+**Parameters:**
+- `repo` (string, optional): Target repository (or set GOGS_DEFAULT_REPO)
+- `format` (string, optional): Output format: json, markdown, text
+- `output` (string, optional): Write output to file instead of stdout
+- `verbose` (boolean, optional): Enable verbose logging to stderr
+- `id` (integer, required): Label ID
 
 ## Tool Schema (JSON)
 
@@ -833,6 +865,38 @@ Create a new label (label resource)
     }
   },
   {
+    "name": "gogs_label_get",
+    "description": "Get a single label (label resource)",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "boolean",
+          "description": "Enable verbose logging to stderr"
+        },
+        "id": {
+          "type": "integer",
+          "description": "Label ID"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  },
+  {
     "name": "gogs_label_create",
     "description": "Create a new label (label resource)",
     "inputSchema": {
@@ -865,6 +929,78 @@ Create a new label (label resource)
       },
       "required": [
         "name"
+      ]
+    }
+  },
+  {
+    "name": "gogs_label_update",
+    "description": "Update a label (label resource)",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "boolean",
+          "description": "Enable verbose logging to stderr"
+        },
+        "id": {
+          "type": "integer",
+          "description": "Label ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "New label name"
+        },
+        "color": {
+          "type": "string",
+          "description": "New hex color code"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  },
+  {
+    "name": "gogs_label_delete",
+    "description": "Delete a label (label resource)",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo": {
+          "type": "string",
+          "description": "Target repository (or set GOGS_DEFAULT_REPO)"
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format: json, markdown, text"
+        },
+        "output": {
+          "type": "string",
+          "description": "Write output to file instead of stdout"
+        },
+        "verbose": {
+          "type": "boolean",
+          "description": "Enable verbose logging to stderr"
+        },
+        "id": {
+          "type": "integer",
+          "description": "Label ID"
+        }
+      },
+      "required": [
+        "id"
       ]
     }
   }

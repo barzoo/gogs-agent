@@ -1,5 +1,5 @@
 import type { GogsClient } from "../client.js";
-import { resolveLabels } from "../labels.js";
+import { resolveLabels, parseLabelNames } from "../labels.js";
 import { ValidationError } from "../errors.js";
 import type {
   Issue,
@@ -46,15 +46,9 @@ export async function issueCreate(
   const body: Record<string, unknown> = { title: params.title };
   if (params.body) body.body = params.body;
 
-  // Resolve label names → label IDs (auto-creates missing labels)
-  if (params.labels) {
-    const names = params.labels
-      .split(",")
-      .map((l) => l.trim())
-      .filter(Boolean);
-    if (names.length) {
-      body.labels = await resolveLabels(client, params.repo, names);
-    }
+  if (params.labels !== undefined) {
+    const names = parseLabelNames(params.labels);
+    body.labels = names.length ? await resolveLabels(client, params.repo, names) : [];
   }
 
   if (params.assignee) body.assignee = params.assignee;
@@ -85,6 +79,7 @@ export async function issueUpdate(
   params: IssueUpdateParams
 ): Promise<Issue> {
   const body: Record<string, unknown> = {};
+  let labelIds: number[] | undefined;
 
   if (params.title !== undefined) body.title = params.title;
   if (params.body !== undefined) body.body = params.body;
@@ -92,21 +87,46 @@ export async function issueUpdate(
   if (params.assignee !== undefined) body.assignee = params.assignee;
   if (params.milestone !== undefined) body.milestone = params.milestone;
 
-  if (params.labels) {
-    const names = params.labels.split(",").map((l) => l.trim()).filter(Boolean);
-    if (names.length) {
-      body.labels = await resolveLabels(client, params.repo, names);
-    }
+  if (params.labels !== undefined) {
+    const names = parseLabelNames(params.labels);
+    labelIds = names.length ? await resolveLabels(client, params.repo, names) : [];
   }
 
-  if (Object.keys(body).length === 0) {
+  if (Object.keys(body).length === 0 && labelIds === undefined) {
     throw new ValidationError("At least one field to update is required");
   }
 
+  const hasFields = Object.keys(body).length > 0;
+  const hasLabels = labelIds !== undefined;
+  let patchResult: Issue | undefined;
+
+  // PATCH non-label fields (Gogs PATCH does not support labels)
+  if (hasFields) {
+    const res = await client.request<Issue>(
+      "PATCH",
+      `/repos/${params.repo}/issues/${params.number}`,
+      { body }
+    );
+    patchResult = res.data;
+  }
+
+  // PUT labels via dedicated endpoint (replaces all labels)
+  if (hasLabels) {
+    await client.request<unknown>(
+      "PUT",
+      `/repos/${params.repo}/issues/${params.number}/labels`,
+      { body: { labels: labelIds! } }
+    );
+  }
+
+  // Return PATCH result directly when labels weren't changed; GET only when labels changed
+  if (patchResult && !hasLabels) {
+    return patchResult;
+  }
+
   const res = await client.request<Issue>(
-    "PATCH",
-    `/repos/${params.repo}/issues/${params.number}`,
-    { body }
+    "GET",
+    `/repos/${params.repo}/issues/${params.number}`
   );
   return res.data;
 }

@@ -163,10 +163,27 @@ export interface LabelListParams {
   repo: string;
 }
 
+export interface LabelGetParams {
+  repo: string;
+  id: number;
+}
+
 export interface LabelCreateParams {
   repo: string;
   name: string;
   color?: string;
+}
+
+export interface LabelUpdateParams {
+  repo: string;
+  id: number;
+  name?: string;
+  color?: string;
+}
+
+export interface LabelDeleteParams {
+  repo: string;
+  id: number;
 }
 
 export interface PrListParams {
@@ -216,6 +233,10 @@ export interface CommentCreateParams {
 }
 
 // ── Output type ──
+
+export interface DeleteResult {
+  deleted: true;
+}
 
 export interface CliOutput {
   ok: boolean;

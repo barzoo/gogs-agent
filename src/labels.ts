@@ -7,6 +7,11 @@ export const PRESET_COLORS = [
   "#0e8a16", "#fbca04", "#5319e7",
 ];
 
+/** Parse a comma-separated CLI label string into a trimmed array. */
+export function parseLabelNames(raw: string): string[] {
+  return raw.split(",").map((l) => l.trim()).filter(Boolean);
+}
+
 /**
  * Resolve label names to label IDs.
  * Looks up existing labels (case-insensitive).
@@ -30,27 +35,23 @@ export async function resolveLabels(
     nameToId.set(label.name.toLowerCase(), label.id);
   }
 
-  let colorIdx = 0;
-  const ids: number[] = [];
-
-  for (const rawName of names) {
-    const name = rawName.trim();
-    const key = name.toLowerCase();
-
-    const existingId = nameToId.get(key);
-    if (existingId !== undefined) {
-      ids.push(existingId);
-    } else {
-      const color = PRESET_COLORS[colorIdx++ % PRESET_COLORS.length];
-      const created = await client.request<Label>(
-        "POST",
-        `/repos/${repo}/labels`,
-        { body: { name, color } }
-      );
-      ids.push(created.data.id);
-      nameToId.set(key, created.data.id);
+  // Auto-create labels that don't already exist
+  const missing = names.filter((n) => !nameToId.has(n.toLowerCase()));
+  if (missing.length) {
+    const created = await Promise.all(
+      missing.map((name, i) => {
+        const color = PRESET_COLORS[i % PRESET_COLORS.length];
+        return client.request<Label>(
+          "POST",
+          `/repos/${repo}/labels`,
+          { body: { name, color } }
+        );
+      })
+    );
+    for (const { data } of created) {
+      nameToId.set(data.name.toLowerCase(), data.id);
     }
   }
 
-  return ids;
+  return names.map((n) => nameToId.get(n.toLowerCase())!);
 }

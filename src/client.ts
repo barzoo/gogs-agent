@@ -55,7 +55,10 @@ export function createGogsClient(config: GogsClientConfig): GogsClient {
       }
 
       if (response.ok) {
-        const data = await response.json() as T;
+        // Handle empty responses (e.g. 204 No Content from DELETE)
+        const contentLength = response.headers.get("Content-Length");
+        const isNoContent = response.status === 204 || contentLength === "0";
+        const data = isNoContent ? null as T : await response.json() as T;
         const total = response.headers.get("X-Total");
         const page = response.headers.get("X-Page");
 

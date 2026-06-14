@@ -39,7 +39,10 @@ comment.command("create").description("Add a comment to an issue or PR").require
 
 const label = program.command("label").description("Label operations");
 label.command("list").description("List all labels for a repository");
+label.command("get").description("Get a single label").requiredOption("--id <n>", "Label ID");
 label.command("create").description("Create a new label").requiredOption("--name <name>", "Label name").option("--color <hex>", "Hex color code (e.g. #ee0701)");
+label.command("update").description("Update a label").requiredOption("--id <n>", "Label ID").option("--name <name>", "New label name").option("--color <hex>", "New hex color code");
+label.command("delete").description("Delete a label").requiredOption("--id <n>", "Label ID");
 
 // ── Generate tool definitions ──
 
@@ -57,7 +60,7 @@ interface ToolDef {
 const INTERNAL_OPTIONS = new Set(["--version", "--help"]);
 
 /** Numeric option names the generator mirrors from the real CLI. */
-const NUMERIC_OPTION_NAMES = new Set(["number", "limit", "page", "milestone"]);
+const NUMERIC_OPTION_NAMES = new Set(["number", "limit", "page", "milestone", "id"]);
 
 /** Infer JSON Schema type. Uses opt.parseArg when available, falls back to name heuristic. */
 function inferType(opt: Option): "integer" | "string" | "boolean" {

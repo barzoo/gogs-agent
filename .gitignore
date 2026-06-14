@@ -15,5 +15,9 @@ dist/
 .DS_Store
 Thumbs.db
 
+# Release artifacts
+gogs-agent-v*.zip
+release/
+
 # Logs
 *.log

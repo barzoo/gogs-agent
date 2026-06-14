@@ -13,6 +13,14 @@ import { commentList, commentCreate } from "./commands/comment.js";
 import { labelList, labelGet, labelCreate, labelUpdate, labelDelete } from "./commands/label.js";
 import { ConfigError, ValidationError, ApiError, NetworkError } from "./errors.js";
 
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkg = JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf-8"));
+
 const program = new Command();
 
 async function printResult(result: unknown, config: AppConfig): Promise<void> {
@@ -23,7 +31,7 @@ async function printResult(result: unknown, config: AppConfig): Promise<void> {
 program
   .name("gogs")
   .description("CLI tool for operating Gogs repositories")
-  .version("0.2.1")
+  .version(pkg.version)
   .option("--repo <owner/repo>", "Target repository (or set GOGS_DEFAULT_REPO)")
   .option("--format <fmt>", "Output format: json, markdown, text", "json")
   .option("--output <path>", "Write output to file instead of stdout")
